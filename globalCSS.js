@@ -1,31 +1,36 @@
 import { StyleSheet } from "react-native";
-
+export const PrimaryColor='#0A61c9'
+export const PrimaryColorLight='#0A61c930'
 const globalStyles = StyleSheet.create({
     primaryText:{
-        color:'#0b57d0'
+        color:PrimaryColor
     },
     heading:{
-        fontSize:18,
-        paddingBottom:20,
-        textAlign:'center',
+        width:'100%',
+        fontSize:16,
+        paddingBottom:8,
+        // paddingLeft:'5',
+        textAlign:'left',
         fontWeight:'500'
     },
     container: {
         flex: 1,
         alignItems: "center",
         paddingTop:10,
-        paddingHorizontal: 15,
+        paddingHorizontal: 8,
+        backgroundColor:'#749dc825'
     },
     step:{
-        backgroundColor:'white',
+        backgroundColor:'#ffffff',
         flexDirection:'column',
         alignItems:'center',
         width:'100%',
         padding:10,
         paddingBottom:20,
-        margin:10,
+        margin:5,
+        marginBottom:10,
         borderRadius:10,
-        boxShadow:'0px 2px 5px #00000020'
+        boxShadow:'0px 2px 3px #00000020'
     },
     radioContainer: {
         flexDirection: "row",
@@ -63,7 +68,7 @@ const globalStyles = StyleSheet.create({
         width: 10,
         height: 10,
         borderRadius: 10,
-        backgroundColor: "blue",
+        backgroundColor: PrimaryColor,
         
     },
     radioText: {
@@ -85,5 +90,49 @@ const globalStyles = StyleSheet.create({
         width: "100%",
         marginTop:-8,
     },
+    button:{
+        height:40, 
+        backgroundColor:PrimaryColor,
+        width:100, 
+        paddingLeft:5, 
+        marginBottom:10, 
+        alignItems:'center', 
+        justifyContent:'center',
+        borderRadius:5
+    },
+    buttonText:{
+        textAlign:'center',
+        color:'white',
+    },
+    dropdownContainer: {
+        width: '100%',
+        maxHeight: 200,
+        borderWidth: 1,
+        borderColor: "#00000040",
+        borderRadius: 5,
+        padding: 0,
+        backgroundColor: "white",
+        overflow: 'hidden'
+        // paddingBottom:50
+    },
+    searchInput: {
+        height: 40,
+        borderColor: "black",
+        backgroundColor: '#f1f1f1',
+        // borderRadius:7,
+        // margin:2
+    },
+    dropdownItem: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderColor: "#cccccc40",
+    },
+    itemContainer: {
+        maxHeight: '86%',
+    },
+    checkbox:{
+        width:20,
+        height:20
+    }
 });
 export default globalStyles;
