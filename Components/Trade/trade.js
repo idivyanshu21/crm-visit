@@ -10,7 +10,7 @@ const Trade = () => {
     return (
         <>
             <Text style={{ paddingBottom: 5, color: '#00000095' }}>State*</Text>
-            <View style={[globalStyles.dropdownContainer, { minWidth: '95%', marginBottom: 10 }]}>
+            <View style={[globalStyles.dropdownContainer, { minWidth: '100%', marginBottom: 10 }]}>
                 <SearchableDropDown
                     items={StateData} // Dropdown options
                     onItemSelect={(item) => setState(item.name)} // Update input field

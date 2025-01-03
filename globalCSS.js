@@ -1,6 +1,8 @@
 import { StyleSheet } from "react-native";
 export const PrimaryColor='#0A61c9'
 export const PrimaryColorLight='#0A61c930'
+export const PrimaryColorLight2='#0A61c910'
+export const PrimaryColorLight3='#0A61c920'
 const globalStyles = StyleSheet.create({
     primaryText:{
         color:PrimaryColor
@@ -16,7 +18,7 @@ const globalStyles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
-        paddingTop:10,
+        paddingTop:40,
         paddingHorizontal: 8,
         backgroundColor:'#749dc825'
     },
@@ -29,7 +31,7 @@ const globalStyles = StyleSheet.create({
         paddingBottom:20,
         margin:5,
         marginBottom:10,
-        borderRadius:10,
+        borderRadius:20,
         boxShadow:'0px 2px 3px #00000020'
     },
     radioContainer: {
@@ -76,10 +78,10 @@ const globalStyles = StyleSheet.create({
     },
     pickerContainer: {
         height:40,
-        width: "95%",
+        width: "100%",
         borderWidth: 1,
-        borderColor: "#00000040",
-        backgroundColor:'#00000008',
+        borderColor: "#00000020",
+        backgroundColor:'#00000005',
         borderRadius: 5,
         flexDirection:'row',
         alignItems:'flex-start',
@@ -106,26 +108,28 @@ const globalStyles = StyleSheet.create({
     },
     dropdownContainer: {
         width: '100%',
-        maxHeight: 200,
+        maxHeight: 300,
         borderWidth: 1,
-        borderColor: "#00000040",
+        borderColor: "#00000020",
         borderRadius: 5,
         padding: 0,
-        backgroundColor: "white",
-        overflow: 'hidden'
-        // paddingBottom:50
+        backgroundColor: "#ffffff99",
+        overflow: 'hidden',
+        boxShadow:'0px 1px 4px #00000040'
     },
     searchInput: {
         height: 40,
-        borderColor: "black",
-        backgroundColor: '#f1f1f1',
+        paddingHorizontal:15,
+        // borderColor: "#00000020",
+        backgroundColor: '#00000008',
         // borderRadius:7,
         // margin:2
     },
     dropdownItem: {
-        padding: 10,
+        padding: 15,
         borderBottomWidth: 1,
         borderColor: "#cccccc40",
+        backgroundColor:'#ffffff99'
     },
     itemContainer: {
         maxHeight: '86%',
@@ -133,6 +137,14 @@ const globalStyles = StyleSheet.create({
     checkbox:{
         width:20,
         height:20
-    }
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 160,
+        padding: 10,
+        fontSize: 16,
+        backgroundColor: '#fff',
+      }
 });
 export default globalStyles;
