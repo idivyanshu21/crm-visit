@@ -90,7 +90,7 @@ const OrderDetailsForm = ({ formData, setFormData }) => {
       alert("Please correct the errors and try again.");
     }
   };
-
+const date = new Date()
   return (
     <View style={styles.container}>
       {/* File Upload */}
@@ -135,7 +135,7 @@ const OrderDetailsForm = ({ formData, setFormData }) => {
           label="Required Delivery Date"
           mode="outlined"
           style={[styles.input, { width: "100%" }]}
-          value={formData.deliveryDate.toISOString().split("T")[0]}
+          value={formData.deliveryDate ? formData?.deliveryDate?.toISOString().split("T")[0]:""}
           editable={false}
           theme={{
             roundness: 11,
@@ -155,7 +155,7 @@ const OrderDetailsForm = ({ formData, setFormData }) => {
       </TouchableOpacity>
       {showDatePicker && (
         <DateTimePicker
-          value={formData.deliveryDate}
+          value={formData.deliveryDate ? formData.deliveryDate:date}
           mode="date"
           display="default"
           onChange={handleDateChange}

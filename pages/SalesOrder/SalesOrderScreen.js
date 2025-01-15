@@ -17,6 +17,7 @@ import BG from '../../assets/Images/orderentrybg.jpg'
 import axios from "axios";
 import TitlesSales from "../../Components/Titles/TitlesSales";
 import useSessionDetails from "../../Contexts/sessionDetails";
+import Loader from "../../Components/Loader";
 // import axios from "axios";
 const SalesOrderScreen = () => {
     const [selectedOption, setSelectedOption] = useState("School");
@@ -24,6 +25,7 @@ const SalesOrderScreen = () => {
     const [selectedDropdownValue, setSelectedDropdownValue] = useState("");
     const [orderType, setOrderType] = useState("New Order");
     const [shipsTo, setShipsTo] = useState("")
+    const [billsTo, setBillsTo] = useState("")
     const [dropdownVisible, setDropdownVisible] = useState(false)
     const [customer, setCustomer] = useState([])
     const [customerOT, setCustomerOT] = useState([])
@@ -43,16 +45,21 @@ const SalesOrderScreen = () => {
     const [shipTo, setShipTo] = useState()
     const [shippingAddress, setShippingAddress] = useState()
     const [mappedData, setMappedData] = useState([]);
+    const [tradeToSchoolData, setTradeToSchoolData] = useState()
+    const [ts, setTs] = useState()
+    const [tradeSchoolId, setTradeSchoolId] = useState()
+    const [tradeSchoolData, setTradeSchoolData] = useState()
+    const [initialData,setInitialData]=useState([])
     const [formData, setFormData] = useState({
         executive: "",
-        academicSession: "",
+        academicSession: 14,
         selectedSubject: "",
         quantity: "",
         discount: "",
         sapCode: "",
         state: "",
         poNumber: "",
-        deliveryDate: new Date(),
+        deliveryDate: "",
         orderReason: "",
         transporterName: "",
         shippingInstructions: ["", "", ""],
@@ -65,20 +72,22 @@ const SalesOrderScreen = () => {
         state: "",
     });
     const [tableData, setTableData] = useState([]);
+    const [tableDataRepeat, setTableDataRepeat] = useState([]);
+
     const fetchData = async () => {
+        setLoading(true)
         try {
-            // Construct the URL with query parameters
             const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetAllTypeCustomerWithSearch",
-                iCompanyID: 1,
+                iCompanyID: sessionDetails.iCompanyID,
                 Col1: selectedOption === "Govt. Dept." ? "Government" : selectedOption,
                 Col2: "",
                 Col3: "",
                 Col4: "",
                 Col5: "",
                 Col6: "",
-                UserID: 785,
+                UserID: sessionDetails.UserID,
             };
 
             const url = `${baseUrl}`;
@@ -103,8 +112,44 @@ const SalesOrderScreen = () => {
             setLoading(false);
         }
     };
+    const fetchDataTradetoSchool = async () => {
+        setLoading(true)
+        try {
+            // Construct the URL with query parameters
+            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const params = {
+                ActionType: "GetAllTypeCustomerWithSearch",
+                iCompanyID: sessionDetails.iCompanyID,
+                Col1: "School",
+                Col2: "",
+                Col3: "",
+                Col4: "",
+                Col5: "",
+                Col6: "",
+                UserID: sessionDetails.UserID,
+            };
 
+            const url = `${baseUrl}`;
+            ////console.log('Request URL:', url);
+
+            // Make the POST request using axios
+            const response = await axios.post(url, null, {
+                params: params, // Send the params as query parameters
+                headers: {
+                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
+                },
+            });
+
+            const data = response.data;
+            setTradeToSchoolData(data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
     const fetchExecutivesAndSubordinates = async () => {
+        setLoading(true)
         try {
             // Construct the URL with query parameters
             const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
@@ -140,6 +185,7 @@ const SalesOrderScreen = () => {
         }
     }
     const fetchAcademicSession = async () => {
+        setLoading(true)
         try {
             // Construct the URL with query parameters
             const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
@@ -162,7 +208,6 @@ const SalesOrderScreen = () => {
                 },
             });
             const data = response.data;
-            //console.log("Received data:", data);
             setAcademicSession(data);
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -171,6 +216,7 @@ const SalesOrderScreen = () => {
         }
     }
     const fetchCustomerDetails = async (billTo) => {
+        setLoading(true)
         try {
             // Construct the URL with query parameters
             const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
@@ -180,7 +226,7 @@ const SalesOrderScreen = () => {
                 FinancialPeriod: "2024-2024",
                 iCompanyID: sessionDetails.iCompanyID,
                 Col1: "",
-                Col2: Number(formData.sapCode),
+                Col2: Number(formData?.sapCode),
                 Col3: "trade",
                 Col4: "",
                 Col5: "",
@@ -199,10 +245,10 @@ const SalesOrderScreen = () => {
                 },
             });
             const data = response.data;
-            //console.log("Received data:", data);
+            console.log("Received data:", data);
             setCustomer(data)
             billTo && setBillTo(data[0].sapCode)
-            billTo && setBillingAddress(data[0].Customer)
+            billTo && setBillingAddress(data[0].Customer.replace(/<\/br>/g, "").trim())
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -210,12 +256,13 @@ const SalesOrderScreen = () => {
         }
     }
     const fetchSchoolDetails = async () => {
+        setLoading(true)
         try {
             setLoading(true)
             // Construct the URL with query parameters
             const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_FindCommonDataForEdit";
             const params = {
-                ActionType: "GetSchoolDetails",
+                ActionType: selectedOption === 'School' ? "GetSchoolDetails" : selectedOption === 'Trade' ? "GetTradeDetails" : "",
                 iCompanyID: sessionDetails.iCompanyID,
                 LoadId: schoolId,
                 UserID: sessionDetails.UserID,
@@ -240,6 +287,7 @@ const SalesOrderScreen = () => {
         }
     }
     const fetchOtherTradeDetails = async () => {
+        setLoading(true)
         try {
             // Construct the URL with query parameters
             const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
@@ -268,10 +316,10 @@ const SalesOrderScreen = () => {
                 },
             });
             const data = response.data;
-            //console.log("Received data:", data);
+            console.log("Received data:", data);
             setCustomerOT(data)
             billTo && setShipTo(data[0].sapCode)
-            billTo && setShippingAddress(data[0].Customer)
+            billTo && setShippingAddress(data[0].Customer.replace(/<\/br>/g, "").trim())
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -279,81 +327,120 @@ const SalesOrderScreen = () => {
         }
     }
     const OnSubmit = async () => {
-            setLoading(true)
-            try {
-                const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_InsertOrderEntry";
-                const body = {
-                    "headerData": [
-                        {
-                            "TrnsType": "O",
-                            "CustomerID": 59777,
-                            "SchoolID": 0,
-                            "ExecutiveID": sessionDetails.ExecutiveID,
-                            "Source": "OrderEntry",
-                            "ItemsDicAmt": 0,
-                            "Remark": formData.orderRemarks,
-                            "DownLoadStatus": "0",
-                            "ShipTo": shipTo+"",
-                            "ShippingAddress": shippingAddress,
-                            "ShippingMode": formData.transporterName,
-                            "ShippingInstructions": formData.shippingInstructions[0]+formData.shippingInstructions[1]+formData.shippingInstructions[2],
-                            "BillTo": billTo,
-                            "BillingAddress": billingAddress,
-                            "PONumber": Number(formData.poNumber),
-                            "ReqDeliveryDate": formData.deliveryDate.toISOString(),
-                            "OrderReason": formData.orderReason,
-                            "BundleRemark": "Bundle Remarks",
-                            "AcademicYear": formData.academicSession,
-                            "BillingToType": selectedOption === 'Govt. Dept.' ? 'Govt. Dept.' : 'Trade',
-                            "ShippingToType": shipsTo
-                        }
-                    ],
-                    "itemData": mappedData,
-                    "TransactionID": 0,
-                    "TabID": "5889758394368713",
-                    "OrderType": orderType==="New Order"?"New":"Repeat",
-                    "iCompanyID": sessionDetails.iCompanyID,
-                    "UserID": sessionDetails.UserID
-                }
-                
-                const url = `${baseUrl}`;
-                console.log(body)
-                const response = await axios.post(url, body, {
-                    headers: {
-                        "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                    },
-                });
-    
-                // Access the data from the response
-                const data = response.data;
-                console.log("++=+==+===+++++>>>>>>>",data)
-                alert(`${data[0].statusRemark}`)
-                setFormData({
-                    executive: "",
-                    academicSession: "",
-                    selectedSubject: "",
-                    quantity: "",
-                    discount: "",
-                    sapCode: "",
-                    state: "",
-                    poNumber: "",
-                    deliveryDate: new Date(),
-                    orderReason: "",
-                    transporterName: "",
-                    shippingInstructions: ["", "", ""],
-                    bundleRemarks: "",
-                    orderRemarks: "",
-                    file: null,
-                })
-                setTableData([])
-                setMappedData([])
-                
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
+        setLoading(true)
+        try {
+            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_InsertOrderEntry";
+            const body = {
+                "headerData": [
+                    {
+                        "TrnsType": "O",
+                        "CustomerID": schoolId,
+                        "SchoolID": 0,
+                        "ExecutiveID": sessionDetails.ExecutiveID,
+                        "Source": "OrderEntry",
+                        "ItemsDicAmt": 0,
+                        "Remark": formData.orderRemarks,
+                        "DownLoadStatus": "0",
+                        "ShipTo": shipTo + "",
+                        "ShippingAddress": shippingAddress,
+                        "ShippingMode": formData.transporterName,
+                        "ShippingInstructions": formData.shippingInstructions[0] + formData.shippingInstructions[1] + formData.shippingInstructions[2],
+                        "BillTo": billTo,
+                        "BillingAddress": billingAddress,
+                        "PONumber": Number(formData.poNumber),
+                        "ReqDeliveryDate": formData.deliveryDate ? formData.deliveryDate.toISOString(): null,
+                        "OrderReason": formData.orderReason,
+                        "BundleRemark": "Bundle Remarks",
+                        "AcademicYear": formData.academicSession,
+                        "BillingToType": selectedOption === 'Govt. Dept.' ? 'Govt. Dept.' : 'Trade',
+                        "ShippingToType": shipsTo
+                    }
+                ],
+                "itemData": mappedData,
+                "TransactionID": 0,
+                "TabID": "5889758394368713",
+                "OrderType": orderType === "New Order" ? "New" : "Repeat",
+                "iCompanyID": sessionDetails.iCompanyID,
+                "UserID": sessionDetails.UserID
             }
+
+            const url = `${baseUrl}`;
+            console.log(body)
+            const response = await axios.post(url, body, {
+                headers: {
+                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
+                },
+            });
+
+            // Access the data from the response
+            const data = response.data;
+            console.log("++=+==+===+++++>>>>>>>", data)
+            alert(`${data[0].statusRemark}`)
+            setFormData({
+                executive: "",
+                academicSession: "",
+                selectedSubject: "",
+                quantity: "",
+                discount: "",
+                sapCode: "",
+                state: "",
+                poNumber: "",
+                deliveryDate: new Date(),
+                orderReason: "",
+                transporterName: "",
+                shippingInstructions: ["", "", ""],
+                bundleRemarks: "",
+                orderRemarks: "",
+                file: null,
+            })
+            setTableData([])
+            setMappedData([])
+
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
     };
+    const fetchRepeatOrderDetails = async () => {
+        try {
+            setLoading(true)
+            console.log("+++++++++++++")
+            // Construct the URL with query parameters
+            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataForGrid";
+            const params = {
+                ActionType: "RepeatOrderInEntry",
+                Col1: 10188,
+                Col2: "School",
+                Col3: "",
+                Col4: "",
+                Col5: "",
+                Col6: "",
+                iCompanyID: sessionDetails.iCompanyID,
+                UserID: 988,
+            };
+            const url = `${baseUrl}`;
+            const response = await axios.post(url, null, {
+                params: params, // Send the params as query parameters
+                headers: {
+                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
+                },
+            });
+            const data = response.data;
+            console.log(data)
+            setInitialData(data)
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(()=>{
+        if(orderType==="Repeat Order"){
+        fetchRepeatOrderDetails()}
+    },[schoolId,orderType])
+
     useEffect(() => {
         if (tableData && Array.isArray(tableData)) {
             const newMappedData = tableData.map((row) => ({
@@ -370,10 +457,25 @@ const SalesOrderScreen = () => {
         }
     }, [tableData]);
 
+    useEffect(() => {
+        if (tableDataRepeat && Array.isArray(tableDataRepeat)) {
+            const newMappedData = tableDataRepeat.filter((row) => row.selected).map((row) => ({
+                "DocIR": "I", // Static value for all rows
+                "BookCode": row.BookCode || "", // Map from tableData row's BookCode
+                "SeriesID": row.SeriesID || null, // Map from SeriesID
+                "Qty": row.quantity || 0, // Map from Quantity
+                "Disc": Number(row.StandardDisc) || 0, // Map from StandardDisc
+                "AdditionalDisc": Number(row.additionalDiscount) || 0, // Map from Discount
+            }));
+
+            // Update the state with the mapped data
+            setMappedData(newMappedData);
+        }
+    }, [tableDataRepeat]);
+
     const searchBillto = () => {
         fetchCustomerDetails(true)
     }
-
     useEffect(() => {
         fetchExecutivesAndSubordinates()
         fetchAcademicSession()
@@ -385,8 +487,12 @@ const SalesOrderScreen = () => {
     }, [schoolId])
     useEffect(() => {
         fetchData();
-    }, [selectedOption]);
-
+    }, [selectedOption, sessionDetails]);
+    useEffect(() => {
+        if (shipsTo === "School" && selectedOption === "Trade") {
+            fetchDataTradetoSchool()
+        }
+    }, [shipsTo]);
     useEffect(() => {
         //console.log(formData)
     }, [formData])
@@ -395,17 +501,92 @@ const SalesOrderScreen = () => {
     }, [customer])
 
     useEffect(() => {
-        if (shipsTo === "Trade" && customer) {
+        if (selectedOption === "School" && shipsTo === "Trade" && customer) {
             setShippingAddress(customer[0]?.Customer);
             setShipTo(customer[0]?.sapCode);
-        } 
-        if (shipsTo === "School" && schoolData) {
+        }
+        if (selectedOption === "School" && shipsTo === "School" && schoolData) {
+            setShippingAddress(schoolData?.schooladdress);
+            setShipTo(schoolData?.sapcode);
+        }
+        if (selectedOption === "Trade" && shipsTo === "School") {
+            setShippingAddress(schoolData?.schooladdress);
+            setShipTo(schoolData?.sapcode);
+        }
+        if (selectedOption === "Trade" && shipsTo === "Trade" && schoolData) {
             setShippingAddress(schoolData?.schooladdress);
             setShipTo(schoolData?.sapcode);
         }
     }, [shipsTo]);
 
+    useEffect(() => {
+        if (selectedOption === "Trade" && schoolData) {
+            setBillingAddress(schoolData?.schooladdress);
+            setBillTo(schoolData?.sapcode);
+        }
+    }, [selectedOption, schoolData, billsTo]);
+
+    useEffect(() => {
+
+        const fetchCustomerSchoolDetails = async () => {
+            try {
+                console.log("executed")
+                // Construct the URL with query parameters
+                const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+                const params = {
+                    ActionType: "GetCustomerData",
+                    iBranchID: 1,
+                    FinancialPeriod: "2024-2024",
+                    iCompanyID: sessionDetails.iCompanyID,
+                    Col1: "",
+                    Col2: tradeSchoolId,
+                    Col3: "school",
+                    Col4: "",
+                    Col5: "",
+                    Col6: "",
+                    Col7: "",
+                    Col8: "",
+                    Col9: "",
+                    Col10: "",
+                    UserID: sessionDetails.UserID,
+                };
+                const url = `${baseUrl}`;
+                const response = await axios.post(url, null, {
+                    params: params, // Send the params as query parameters
+                    headers: {
+                        "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
+                    },
+                });
+                const data = response.data;
+                console.log("Received data:", data);
+                setCustomer(data)
+                setShipTo(data[0]?.sapCode)
+                setShippingAddress(data[0]?.Customer.replace(/<\/br>/g, "").trim())
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchCustomerSchoolDetails()
+    }, [tradeSchoolId])
+
+    const repeatCardsMap=()=>{
+        const cardData =initialData?.map((item) => ({
+            ...item,
+            selected: false,
+            quantity: item.Qty24_25,
+            additionalDiscount: item.AddDisc24_25,
+          }))
+          setTableDataRepeat(cardData)
+    }
+
+    useEffect(()=>{
+        repeatCardsMap()
+    },[initialData])
+
     const dropdownOptions = orderData.map((item) => ({ id: item.Value_v, name: item.Text_t }))
+    const dropdownOptionsTradeSchool = tradeToSchoolData?.map((item) => ({ id: item.Value_v, name: item.Text_t }))
     const ShippingOptions = ['School', 'Trade', 'Other Trade', 'Other Address']
 
     const tabOptions = [
@@ -414,11 +595,23 @@ const SalesOrderScreen = () => {
             content:
                 <>
                     <Text style={{ paddingBottom: 5, color: '#00000095' }}>Billing Details</Text>
-                    <View style={[globalStyles.pickerContainer, { marginBottom: 20, alignItems: 'center', minWidth: '100%', paddingLeft: 10 }]}>
-                        <Text>{selectedOption === 'Govt. Dept.' ? 'Govt. Dept.' : 'Trade'}</Text>
+                    <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}>
+                        <Picker
+                            selectedValue={shipsTo}
+                            onValueChange={(itemValue) => setBillsTo(itemValue)}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Select Bill To" color="#00000070" value="" />
+                            {(selectedOption === 'School' || selectedOption === 'Trade') &&
+                                <Picker.Item label="Trade" color="#000000" value="Trade" />}
+                            {selectedOption === "Govt. Dept." &&
+                                <Picker.Item label="Govt. Dept." color="#000000" value="Govt. Dept." />}
+                        </Picker>
                     </View>
-                    {selectedOption === 'Govt. Dept.' ? <Details /> : <Trade formData={formData} setFormData={setFormData} stateId={stateId} setStateId={setStateId} fetchCustomerDetails={searchBillto} />}
-                    {customer && <Details data={customer[0]} />}
+                    {selectedOption === 'Govt. Dept.' ? <Details /> : selectedOption === 'School' ? <>{billsTo && <Trade formData={formData} setFormData={setFormData} stateId={stateId} setStateId={setStateId} fetchCustomerDetails={searchBillto} />}</> : <></>}
+                    {customer && selectedOption === 'School' && billsTo && <Details data={customer[0]} />}
+                    {schoolData && selectedOption === 'Trade' && billsTo && <Details data={schoolData} />}
+
                     <Text style={{ paddingBottom: 5, color: '#00000095' }}>Shipping Details</Text>
                     <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}>
                         <Picker
@@ -452,18 +645,30 @@ const SalesOrderScreen = () => {
                         )}
 
                     {selectedOption === 'Trade' && shipsTo !== "" &&
-                        (shipsTo === 'Other Address' ? <AddressForm /> : shipsTo === 'Other Trade' ? <Trade /> : shipsTo === 'School' ?
-                            <View>
-                                <Text style={{ paddingBottom: 2, color: '#00000095' }}>Select School</Text>
+                        (shipsTo === 'Other Address' ? <AddressForm /> : shipsTo === 'Other Trade' ?
+                            <><Trade formData={formDataOT} setFormData={setFormDataOT} stateId={stateIdOT} setStateId={setStateIdOT} fetchCustomerDetails={fetchOtherTradeDetails} />
+                                <Details data={customerOT[0]} />
+                            </>
+                            : shipsTo === 'School' ?
+                                <View>
+                                    <Text style={{ paddingBottom: 2, color: '#00000095' }}>Select School</Text>
 
-                                <Dropdown
-                                    dropdownOptions={dropdownOptions} // Pass all options
-                                    selectedOption={'School'} // Determine which dropdown's options to use
-                                    selectedValue={selectedDropdownValue} // Bind selected value
-                                    onValueChange={(value) => {
-                                        setSelectedDropdownValue(value); // Update selected value
-                                    }}
-                                /></View> : '')}
+                                    <Dropdown
+                                        dropdownOptions={dropdownOptionsTradeSchool} // Pass all options
+                                        selectedOption={'School'} // Determine which dropdown's options to use
+                                        selectedValue={ts} // Bind selected value
+                                        id={(value) => {
+                                            setTradeSchoolId(value);
+                                        }}
+                                        onValueChange={(value) => {
+                                            setTs(value); // Update selected value
+                                        }}
+                                    />
+                                    <View style={{ marginTop: 10 }}>
+                                        <Details data={customer[0]} />
+                                    </View>
+
+                                </View> : <Details data={schoolData} />)}
                     {selectedOption === 'Govt. Dept.' && shipsTo !== "" &&
                         (shipsTo === 'Other Address' ? <AddressForm /> : shipsTo === 'Other Trade' ? <Trade /> : shipsTo === 'School' ?
                             <View>
@@ -499,16 +704,20 @@ const SalesOrderScreen = () => {
                 upload={true}
                 schoolId={schoolId}
                 tableData={tableData}
-                setTableData={setTableData} />
+                setTableData={setTableData}
+                orderType={orderType} 
+                tableDataRepeat={tableDataRepeat}
+                setTableDataRepeat={setTableDataRepeat}/>
         },
         {
             title: "Other Details",
-            content: <View style={{ height: "fit-content" }}><OrderDetailsForm formData={formData} setFormData={setFormData}/></View>,
+            content: <View style={{ height: "fit-content" }}><OrderDetailsForm formData={formData} setFormData={setFormData} /></View>,
         },
     ];
 
 
     return (<>
+    {loading && <Loader />}
         <AnimatedHeader title='Order Entry'>
             <TouchableWithoutFeedback
                 onPress={() => {
@@ -533,6 +742,13 @@ const SalesOrderScreen = () => {
                                         setSelectedOption(option)
                                         setSelectedDropdownValue("");
                                         setShipsTo("")
+                                        setCustomer("")
+                                        setCustomerOT("")
+                                        setBillingAddress("")
+                                        setBillTo("")
+                                        setShippingAddress("")
+                                        setShipTo("")
+                                        setSchoolData('')
                                     }}
                                 >
                                     <Text style={[styles.radioText, selectedOption === option && styles.active]}>{option}</Text>
@@ -558,10 +774,11 @@ const SalesOrderScreen = () => {
                     <View style={styles.container}>
 
                         {/* Radio Buttons */}
-                        <View style={globalStyles.step}>
-                            <Text style={[globalStyles.heading, globalStyles.primaryText, { textAlign: 'center' }]}>Order Type</Text>
+                        <View style={{backgroundColor:"white", width:"100%", borderRadius:15}}>
+                            {/* <Text style={[globalStyles.heading, globalStyles.primaryText, { textAlign: 'center' }]}>Order Type</Text> */}
                             <View style={styles.radioContainer}>
-                                {["New Order", "Repeat Order"].map((option) => (
+                            {/* ["New Order", "Repeat Order"] */}
+                                {["New Order","Repeat Order"].map((option) => (
                                     <TouchableOpacity
                                         key={option}
                                         style={globalStyles.radioButton}
@@ -600,13 +817,13 @@ const SalesOrderScreen = () => {
                                     onValueChange={(value) => setFormData({ ...formData, academicSession: value })}
                                     style={styles.picker}
                                 >
-                                    <Picker.Item label="Select Session" value="" />
+                                    <Picker.Item label="Select Academic Year" value="" />
                                     {academicSession && academicSession.map((session) => (
                                         <Picker.Item key={session.Value_v} label={session.Text_t} value={session.Value_v} />
                                     ))}
                                 </Picker></View>
                         </View>
-                        <TabComponent tabs={tabOptions} defaultTab="Titles" />
+                        <TabComponent tabs={tabOptions} defaultTab="Billing/Shipping" />
                         <TouchableOpacity style={styles.submitButton} onPress={OnSubmit} >
                             <Text style={styles.submitText}>Submit</Text>
                         </TouchableOpacity>
@@ -755,5 +972,4 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
-
 export default SalesOrderScreen;

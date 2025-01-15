@@ -1,12 +1,39 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { States } from "../../pages/Stateinfo";
 import SearchableDropDown from "react-native-searchable-dropdown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import globalStyles from "../../globalCSS";
+import axios from "axios";
 
 const Trade = ({ formData, setFormData, stateId, setStateId, fetchCustomerDetails }) => {
     const [state, setState] = useState("")
     const StateData = States.map((item) => ({ id: item.Value_v, name: item.Text_t }))
+        const fetchState = async () => {
+            console.log("++++++++++++++++++++++++++++++++++++++++")
+            try {
+                // Construct the URL with query parameters
+                const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetState";
+                const params = {
+                    country:""
+                };
+                const url = `${baseUrl}`;
+                const response = await axios.post(url, null, {
+                    params: params, // Send the params as query parameters
+                    headers: {
+                        "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
+                    },
+                });
+                const data = response.data;
+                console.log("______++++_____>>>>",data)
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        useEffect(()=>{
+            fetchState()
+        },[])
     return (
         <>
             <Text style={{ paddingBottom: 5, color: '#00000095' }}>State*</Text>

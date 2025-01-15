@@ -5,8 +5,10 @@ import * as DocumentPicker from 'expo-document-picker';
 import { Picker } from '@react-native-picker/picker';
 import useSessionDetails from '../../Contexts/sessionDetails';
 import axios from 'axios';
+import { Checkbox } from 'react-native-paper';
+import Loader from '../Loader';
 
-const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selectedLevels, setSelectedLevels, series, setSeries, schoolId, tableData, setTableData }) => {
+const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData, setFormData, classValue, setClassValue, selectedLevels, setSelectedLevels, series, setSeries, schoolId, tableData, setTableData }) => {
     const [title, setTitle] = useState("Title in Series");
     const titleOptions = ['Title in Series', 'Title not in Series'];
     const [classType, setClassType] = useState("Class Level");
@@ -298,7 +300,7 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
                         (formData.quantity * (item.Price || 0)) *
                         (1 - (Number(item.StandardDisc) + Number(formData.discount)) / 100),
                     Quantity: formData.quantity,
-                    Discount:formData.discount,
+                    Discount: formData.discount,
                     SeriesID: formData.selectedSeries
                 }));
                 setTableData(formattedData);
@@ -311,10 +313,22 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
             setLoading(false);
         }
     };
+    const handleCheckboxChangeCards = (index) => {
+        const newData = [...tableDataRepeat];
+        newData[index].selected = !newData[index].selected;
+        setTableDataRepeat(newData);
+    };
+
+    const handleInputChangeCards = (index, field, value) => {
+        const updatedData = [...tableDataRepeat];
+        updatedData[index][field] = value ? parseInt(value) : 0;
+        setTableDataRepeat(updatedData);
+    };
     return (
         <View style={{ width: '95%' }}>
-            <Text style={styles.header}>Orders Process</Text>
-            <View style={globalStyles.radioContainer}>
+            {loading && <Loader />}
+            {orderType === "New Order" && <Text style={styles.header}>Orders Process</Text>}
+            {orderType === "New Order" && <View style={globalStyles.radioContainer}>
                 {titleOptions.map((option) => (
                     <TouchableOpacity
                         key={option}
@@ -333,9 +347,9 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
                         <Text style={globalStyles.radioText}>{option}</Text>
                     </TouchableOpacity>
                 ))}
-            </View>
-            {title === 'Title in Series' && (
-                <View style={[styles.seriesContainer, classType === 'Class Number' ? { height: 250 } : { height: 200 }]}>
+            </View>}
+            {orderType === "New Order" && title === 'Title in Series' && (
+                <View style={[styles.seriesContainer, classType === 'Class Number' ? { height: 190 } : { height: 150 }]}>
                     <View style={globalStyles.radioContainer}>
                         {['Class Level', 'Class Number'].map((option) => (
                             <TouchableOpacity
@@ -359,44 +373,6 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
                             </TouchableOpacity>
                         ))}
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <TouchableOpacity
-                            style={styles.uploadButton}
-                            onPress={() => setModalVisible(true)}
-                        >
-                            <Text style={styles.uploadButtonText}>Upload Titles</Text>
-                        </TouchableOpacity>
-                        <Text style={{ fontSize: 12, width: '55%' }}>
-                            Note: BookCode, Quantity, AddDisc are required columns in the Excel file.
-                        </Text>
-                    </View>
-                    <Modal
-                        visible={modalVisible}
-                        animationType="slide"
-                        transparent={true}
-                        onRequestClose={() => setModalVisible(false)}
-                    >
-                        <View style={styles.modalContainer}>
-                            <View style={styles.modalContent}>
-                                <Text style={styles.modalTitle}>Upload Excel File</Text>
-                                <TouchableOpacity style={styles.fileButton} onPress={pickFile}>
-                                    <Text style={styles.fileButtonText}>
-                                        {selectedFile || 'Choose File'}
-                                    </Text>
-                                </TouchableOpacity>
-                                <Text style={styles.noteText}>
-                                    Note: *BookCode*, *Quantity*, *AddDisc* are required columns in the Excel file.
-                                </Text>
-                                <TouchableOpacity
-                                    style={styles.closeButton}
-                                    onPress={() => setModalVisible(false)}
-                                >
-                                    <Text style={styles.closeButtonText}>Close</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </Modal>
-
                     <View style={styles.pillContainer}>
                         {(classType === 'Class Level' ? classLevels : classNum).map((item) => (
                             <TouchableOpacity
@@ -434,7 +410,7 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
                     </View>
                 </View>
             )}
-            <View style={styles.dropdownContainer}>
+            {orderType === "New Order" && <View style={styles.dropdownContainer}>
                 <Text style={[styles.label, { marginTop: 10 }]}>Broad Subject</Text>
                 <View style={[globalStyles.input, { borderRadius: 12, marginTop: 10, padding: 0, height: 45, marginBottom: 10 }]}>
                     <Picker
@@ -450,7 +426,7 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
                         ))}
                     </Picker>
                 </View>
-            </View>
+            </View>}
             {formData.selectedSubject !== '' && (
                 <View style={styles.dropdownContainer}>
                     <Text style={styles.label}>{title === "Title in Series" ? "Series" : "Title"}</Text>
@@ -469,7 +445,7 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
                     </View>
                 </View>
             )}
-            <View style={{ marginVertical: 10 }}>
+            {orderType === "New Order" && <View style={{ marginVertical: 10 }}>
                 <Text style={styles.label}>Quantity:</Text>
                 <TextInput
                     style={[globalStyles.input, { borderRadius: 12, marginTop: 10 }]}
@@ -478,8 +454,8 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
                     value={formData.quantity || ''}
                     onChangeText={(value) => handleInputChange('quantity', value)}
                 />
-            </View>
-            <View style={{ marginVertical: 10 }}>
+            </View>}
+            {orderType === "New Order" && <View style={{ marginVertical: 10 }}>
                 <Text style={styles.label}>Discount:</Text>
                 <TextInput
                     style={[globalStyles.input, { borderRadius: 12, marginTop: 10 }]}
@@ -488,74 +464,124 @@ const TitlesSales = ({ formData, setFormData, classValue, setClassValue, selecte
                     value={formData.discount || ''}
                     onChangeText={(value) => handleInputChange('discount', value)}
                 />
-            </View>
+            </View>}
+            {orderType === "New Order" &&
+                <View style={[styles.container]}>
+                    {orderType === "New Order" &&
+                        <TouchableOpacity style={styles.addButton} onPress={addtolist}>
+                            <Text style={styles.addButtonText}>
+                                {loading ? "Loading..." : "Add to List"}
+                            </Text>
+                        </TouchableOpacity>}
+                    {loading && <ActivityIndicator size="large" color="#007bff" />}
+                    {orderType === "New Order" && tableData.length === 0 && !loading ? (
+                        <Text style={styles.emptyText}>No data available.</Text>
+                    ) : (
+                        <FlatList
+                            data={tableData}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item, index }) => (
+                                <View style={styles.card}>
+                                    <Text style={styles.text}>Row: {index + 1}</Text>
+                                    <Text style={styles.text}>Series: {item.BookSeriesDesc}</Text>
+                                    <Text style={styles.text}>Title: {item.BookName}</Text>
+                                    <Text style={styles.text}>Price: {item.Price}</Text>
 
-            <View style={styles.container}>
-                <TouchableOpacity style={styles.addButton} onPress={addtolist}>
-                    <Text style={styles.addButtonText}>
-                        {loading ? "Loading..." : "Add to List"}
-                    </Text>
-                </TouchableOpacity>
-                {loading && <ActivityIndicator size="large" color="#007bff" />}
-                {tableData.length === 0 && !loading ? (
-                    <Text style={styles.emptyText}>No data available.</Text>
-                ) : (
+
+                                    {/* Editable Quantity */}
+                                    <View style={styles.inputRow}>
+                                        <Text style={styles.text}>Quantity: </Text>
+                                        <TextInput
+                                            style={styles.input}
+                                            keyboardType="numeric"
+                                            value={String(item.Quantity)}
+                                            onChangeText={(text) => handleQuantityChange(index, text)}
+                                        />
+                                    </View>
+
+                                    {/* Editable Discount */}
+                                    <View style={styles.inputRow}>
+                                        <Text style={styles.text}>Add. Discount (%): </Text>
+                                        <TextInput
+                                            style={styles.input}
+                                            keyboardType="numeric"
+                                            value={String(item.Discount)}
+                                            onChangeText={(text) => handleDiscountChange(index, text)}
+                                        />
+                                    </View>
+
+                                    <Text style={styles.text}>
+                                        Total Amount: {item.TotalAmount.toFixed(2)}
+                                    </Text>
+                                    <Text style={styles.text}>
+                                        Total Net Amount: {item.TotalNetAmount.toFixed(2)}
+                                    </Text>
+                                    <Text style={styles.text}>
+                                        AdditionalDisc23_24: {item.AdditionalDisc23_24}
+                                    </Text>
+                                    <Text style={styles.text}>
+                                        AdditionalDisc24_25: {item.AdditionalDisc24_25}
+                                    </Text>
+
+                                    <Button
+                                        title="Delete"
+                                        color="red"
+                                        onPress={() => handleDelete(index)}
+                                    />
+                                </View>
+                            )}
+                        />
+                    )}
+                </View>}
+            {orderType === "Repeat Order" &&
+                <View style={{ flex: 1, marginTop: 0 }}>
                     <FlatList
-                        data={tableData}
+                        data={tableDataRepeat}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, index }) => (
                             <View style={styles.card}>
-                                <Text style={styles.text}>Row: {index + 1}</Text>
-                                <Text style={styles.text}>Series: {item.BookSeriesDesc}</Text>
-                                <Text style={styles.text}>Title: {item.BookName}</Text>
-                                <Text style={styles.text}>Price: {item.Price}</Text>
-                                
-
-                                {/* Editable Quantity */}
-                                <View style={styles.inputRow}>
-                                    <Text style={styles.text}>Quantity: </Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        keyboardType="numeric"
-                                        value={String(item.Quantity)}
-                                        onChangeText={(text) => handleQuantityChange(index, text)}
-                                    />
-                                </View>
-
-                                {/* Editable Discount */}
-                                <View style={styles.inputRow}>
-                                    <Text style={styles.text}>Add. Discount (%): </Text>
-                                    <TextInput
-                                        style={styles.input}
-                                        keyboardType="numeric"
-                                        value={String(item.Discount)}
-                                        onChangeText={(text) => handleDiscountChange(index, text)}
-                                    />
-                                </View>
-
-                                <Text style={styles.text}>
-                                    Total Amount: {item.TotalAmount.toFixed(2)}
-                                </Text>
-                                <Text style={styles.text}>
-                                    Total Net Amount: {item.TotalNetAmount.toFixed(2)}
-                                </Text>
-                                <Text style={styles.text}>
-                                    AdditionalDisc23_24: {item.AdditionalDisc23_24}
-                                </Text>
-                                <Text style={styles.text}>
-                                    AdditionalDisc24_25: {item.AdditionalDisc24_25}
-                                </Text>
-
-                                <Button
-                                    title="Delete"
-                                    color="red"
-                                    onPress={() => handleDelete(index)}
+                                <Checkbox status={item.selected ? "checked" : "unchecked"}
+                                    onPress={() => handleCheckboxChangeCards(index)}
+                                    color={PrimaryColor} // Optional: Customize the checkbox color
                                 />
+                                <Text style={styles.bookName}>Title: {item.BookName}</Text>
+                                <Text style={styles.label}>Subject: {item.SubjectName}</Text>
+                                <Text style={styles.label}>Series: {item.SeriesName}</Text>
+                                <Text style={styles.label}>List Price: {item.SalePrice}</Text>
+                                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                    <Text style={[styles.label, { flex: 1 / 2 }]}>Quantity:</Text>
+                                    <TextInput
+                                        style={[styles.input, { flex: 1 }]}
+                                        keyboardType="numeric"
+                                        value={item.quantity.toString()}
+                                        editable={item.selected}
+                                        onChangeText={(value) => handleInputChangeCards(index, "quantity", value)}
+                                    />
+                                </View>
+                                <Text style={[styles.label, { marginTop: 5 }]}>Standard Discount (%): {item.StdDisc}</Text>
+                                <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}>
+                                    <Text style={[styles.label, { flex: 1 / 2 }]}>Add.Disc.(%):</Text>
+                                    <TextInput
+                                        style={styles.input}
+                                        keyboardType="numeric"
+                                        value={item.additionalDiscount.toString()}
+                                        editable={item.selected}
+                                        onChangeText={(value) =>
+                                            handleInputChangeCards(index, "additionalDiscount", value)
+                                        }
+                                    />
+                                </View>
+                                <Text style={[styles.label, { marginTop: 10 }]}>Unit 25-26: {item.Qty25_26 || 0}</Text>
+                                <Text style={[styles.label, { margintop: 5 }]}>Additional Disc(%) 25-26: {item.AddDisc25_26 || 0}</Text>
+                                <Text style={[styles.label, { margintop: 5 }]}>Unit 24-25: {item.Qty24_25}</Text>
+                                <Text style={[styles.label, { margintop: 5 }]}>Additional Disc(%) 24-25: {item.AddDisc24_25}</Text>
+                                <Text style={[styles.label, { margintop: 5 }]}>Unit 23-24: {item.Qty23_24}</Text>
+                                <Text style={[styles.label, { margintop: 5 }]}>Additional Disc(%) 23-24: {item.AddDisc23_24}</Text>
                             </View>
                         )}
                     />
-                )}
-            </View>
+                </View>
+            }
         </View>
     );
 };
@@ -581,6 +607,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap', // Enable wrapping for rows
         gap: 0,
+        marginTop: 20
     },
     pillButton: {
         paddingVertical: 6,
@@ -613,7 +640,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         alignItems: 'center',
         borderRadius: 10,
-        
+
     },
     submitText: {
         color: '#fff',
@@ -682,44 +709,41 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: "center",
         marginBottom: 10,
-      },
-      addButtonText: {
+    },
+    addButtonText: {
         color: "#fff",
         fontWeight: "bold",
         fontSize: 16,
-      },
-      emptyText: {
+    },
+    emptyText: {
         textAlign: "center",
         fontSize: 16,
         color: "#777",
-      },
-      card: {
-        backgroundColor: "#fff",
+    },
+    card: {
+        backgroundColor: "#0000",
         padding: 15,
-        marginHorizontal:2,
+        marginHorizontal: 2,
         marginVertical: 10,
-        borderRadius: 5,
-        elevation: 2,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-      },
-      text: {
+        borderRadius: 15,
+        boxShadow: '0 1 4 #00000040'
+    },
+    text: {
         fontSize: 14,
         marginBottom: 5,
-      },
-      inputRow: {
+    },
+    inputRow: {
         flexDirection: "row",
         alignItems: "center",
         marginBottom: 5,
-      },
-      input: {
+    },
+    input: {
         borderWidth: 1,
         borderColor: "#ccc",
         borderRadius: 5,
         padding: 5,
         flex: 1,
         marginLeft: 5,
-      },
-    
+    },
+
 });
