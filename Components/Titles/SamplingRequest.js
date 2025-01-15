@@ -6,6 +6,7 @@ import OrderProcess from '../OrdersProcess/OrderProcess';
 import uploadIcon from "../../assets/cloud.png"
 import { Picker } from '@react-native-picker/picker';
 import { TextInput } from 'react-native-gesture-handler';
+import { TextInput as PaperTextInput,DefaultTheme } from "react-native-paper";
 import axios from 'axios';
 import useSessionDetails from '../../Contexts/sessionDetails';
 import Loader from '../Loader';
@@ -87,6 +88,10 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         }));
     };
 
+    useEffect(()=>{
+        console.log(formData)
+    },[formData])
+
     const getConcatenatedBookCodes = () => {
         let concatenatedCodes = "";
         Object.entries(bookQuantities).forEach(([bookType, quantity]) => {
@@ -108,32 +113,32 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
             alert("Please select the shipment mode.");
             return;
         }
-    
+
         if (!schoolCode) {
             alert("Please select the school code.");
             return;
         }
-    
+
         if (!formData.selectedSubjectSR) {
             alert("Please select the subject.");
             return;
         }
-    
+
         if (!formData.selectedSeriesSR) {
             alert("Please select the series.");
             return;
         }
-    
+
         if (!bookQuantities || Object.values(bookQuantities).every((quantity) => !quantity || parseInt(quantity, 10) === 0)) {
             alert("Please enter at least one non-zero book quantity.");
             return;
         }
-    
+
         // Check for non-zero quantities specifically
         const nonZeroQuantities = Object.values(bookQuantities).some(
             (value) => value && parseInt(value, 10) > 0
         );
-    
+
         if (!nonZeroQuantities) {
             alert("Please enter at least one valid book quantity greater than zero.");
             return;
@@ -142,7 +147,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         const concatenatedBookCodes = getConcatenatedBookCodes();
 
         try {
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "LoadTitleStockExeDis",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -158,7 +163,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
                 Col8: "",
                 Col9: "",
                 Col10: "",
-                UserID:sessionDetails.UserID,
+                UserID: sessionDetails.UserID,
             };
 
             const response = await axios.post(baseUrl, null, {
@@ -169,52 +174,52 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
             });
 
             const data = response?.data;
-            console.log('++++++++++++++++++===============>>>>>',data)
+            console.log('++++++++++++++++++===============>>>>>', data)
             if (!data || data.length === 0) {
                 alert("No data found.");
                 return;
             }
-            if(formData.samplingType !== "ToBeDispatched"){
-            const minStock = Math.min(...data.map((book) => book.ExecutiveStock));
-            const exceedingQuantities = Object.entries(bookQuantities).filter(
-                ([key, value]) => value && parseInt(value, 10) > minStock
-            );
-
-            if (exceedingQuantities.length > 0 && formData.samplingType !== "ToBeDispatched") {
-                alert(
-                    `The selected quantities exceed the minimum available stock (${minStock}). Please adjust your selection.`
+            if (formData.samplingType !== "ToBeDispatched") {
+                const minStock = Math.min(...data.map((book) => book.ExecutiveStock));
+                const exceedingQuantities = Object.entries(bookQuantities).filter(
+                    ([key, value]) => value && parseInt(value, 10) > minStock
                 );
-                return;
+
+                if (exceedingQuantities.length > 0 && formData.samplingType !== "ToBeDispatched") {
+                    alert(
+                        `The selected quantities exceed the minimum available stock (${minStock}). Please adjust your selection.`
+                    );
+                    return;
+                }
             }
-        }
 
             const cardId = Date.now(); // Unique identifier for the card
-            const Plant_SAPCode= title==='Title in Series'? null: data[0].BookCode
+            const Plant_SAPCode = title === 'Title in Series' ? null : data[0].BookCode
             console.log(Plant_SAPCode)
             console.log(allBookData)
             const newTableRows = data?.map((book) => {
-                    const bookTypeName = title==='Title in Series'? findBookTypeName(book.BookCode):allBookData[0].booktypename;
-                    if (!bookTypeName) return null;
+                const bookTypeName = title === 'Title in Series' ? findBookTypeName(book.BookCode) : allBookData[0].booktypename;
+                if (!bookTypeName) return null;
 
-                    return {
-                        cardId, // Associate this row with the card
-                        BookName: book.BookName,
-                        Qty: bookQuantities[bookTypeName] || 0,
-                        "AddoptionChances": 0,
-                        "BookCode": book.BookCode,
-                        "CompPublisher": 0,
-                        "OppValue": 0,
-                        "PlanYear": null,
-                        "Series": null,
-                        "Title": null,
-                        "TitleRemark": null,
-                        "TrnsSamplePlanDetailID": 1,
-                        "iCompanyID": 0
+                return {
+                    cardId, // Associate this row with the card
+                    BookName: book.BookName,
+                    Qty: bookQuantities[bookTypeName] || 0,
+                    "AddoptionChances": 0,
+                    "BookCode": book.BookCode,
+                    "CompPublisher": 0,
+                    "OppValue": 0,
+                    "PlanYear": null,
+                    "Series": null,
+                    "Title": null,
+                    "TitleRemark": null,
+                    "TrnsSamplePlanDetailID": 1,
+                    "iCompanyID": 0
 
-                    };
-                })
+                };
+            })
                 .filter(Boolean); // Remove null rows
-                console.log(newTableRows)
+            console.log(newTableRows)
 
             setTableDataSR((prevTableData) => [...prevTableData, ...newTableRows]);
 
@@ -239,8 +244,8 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
                 "CB_Qty": bookQuantities.CB ? bookQuantities.CB : 0,
                 "CCGiven": false,
                 "CD_Qty": bookQuantities.CD ? bookQuantities.CD : 0,
-                "ClassLevel_ConCat": (classType === 'Class Level' ? classValueSR : '' )|| null,
-                "ClassNum_ConCat": (classType === 'Class Level' ? '' : classValueSR)||null,
+                "ClassLevel_ConCat": (classType === 'Class Level' ? classValueSR : '') || null,
+                "ClassNum_ConCat": (classType === 'Class Level' ? '' : classValueSR) || null,
                 "ContactPersonID": 184027,
                 "CustomerCode": null,
                 "Deleted": false,
@@ -308,7 +313,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         } catch (error) {
             console.error("Error fetching data:", error);
             alert("An error occurred while fetching data.");
-        }finally{
+        } finally {
             setLoading(false)
         }
     };
@@ -338,7 +343,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetMasterTeacherProfessor",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -365,8 +370,12 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
             const data = response.data;
             console.log(response)
             setteacher(data)
-            // Set the state with the fetched data
 
+            if(data.length === 1){ 
+                setFormData((prev) => ({
+                    ...prev,
+                    teacher:data[0].Value_v ,
+                }));}
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -378,7 +387,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetBroadSubjectInExecutiveWithSeriesAndTitle",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -415,7 +424,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
     const fetchmonths = async () => {
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "GetSchoolSamplingMonth",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -478,13 +487,13 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: title === "Title in Series" ? "GetMasterSeries" : "GetMasterTitle",
                 iCompanyID: sessionDetails.iCompanyID,
                 Col1: sessionDetails.ExecutiveID,
                 Col2: formData.selectedSubjectSR,
-                Col3: title === "Title in Series" ?classValueSR:"",
+                Col3: title === "Title in Series" ? classValueSR : "",
                 Col4: "",
                 Col5: "",
                 Col6: "",
@@ -531,7 +540,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         setLoading(true)
         try {
             // console.log(classValue, formData.selectedSeries);
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "LoadBookTypeInSeriesAndBook",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -586,7 +595,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
     const fetchShipmentMode = async () => {
         setLoading(true)
         try {
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetShipmentMode",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -637,22 +646,34 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
                     </Picker>
                 </View>
                 <View style={styles.dropdownContainer}>
-                            <Text style={styles.label}>Ship To</Text>
-                            <View style={styles.pickerContainer}>
-                                <Picker
-                                    selectedValue={formData.shipTo}
-                                    onValueChange={(itemValue) => handleInputChange('shipTo', itemValue)}
-                                    style={styles.picker}
-                                >
-                                    <Picker.Item label="Select Ship Location" value="" />
-                                    <Picker.Item label="Official Address" value="official" />
-                                    <Picker.Item label="Residence Address" value="residence" />
-                                </Picker>
-                            </View>
-                        </View>
-                <View style={[styles.formGroup,{padding:5, height: 100 }]}>
-                    <TextInput placeholder='Sampling Instructions' value={formData.samplingInstructions} onChangeText={(text) => setFormData({ ...formData, samplingInstructions: text })} />
+                    <Text style={styles.label}>Ship To</Text>
+                    <View style={styles.pickerContainer}>
+                        <Picker
+                            selectedValue={formData.shipTo}
+                            onValueChange={(itemValue) => handleInputChange('shipTo', itemValue)}
+                            style={styles.picker}
+                        >
+                            <Picker.Item label="Select Ship Location" value="" />
+                            <Picker.Item label="Official Address" value="official" />
+                            <Picker.Item label="Residence Address" value="residence" />
+                        </Picker>
+                    </View>
                 </View>
+                <PaperTextInput
+                    label='Shipping Instructions'
+                    theme={{
+                        roundness: 12,
+                        colors: {
+                            ...DefaultTheme.colors,
+                            primary: PrimaryColor, // Example primary color
+                            outline: "#00000020",
+                        },
+                    }}
+                    style={[styles.inputTextArea, { height: 100 }]}
+                    multiline
+                    mode='outlined'
+                    value={formData.samplingInstructions}
+                    onChangeText={(text) => setFormData({ ...formData, samplingInstructions: text })} />
             </>}
 
             <View style={[globalStyles.radioContainer, { justifyContent: 'center' }]}>
@@ -781,7 +802,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
                         <Text style={styles.label}>{title === "Title in Series" ? "Series" : "Title"}</Text>
                         <View style={styles.pickerContainer}>
                             <Picker
-                                selectedValue={formData.selectedSeries}
+                                selectedValue={formData.selectedSeriesSR}
                                 onValueChange={(itemValue) => handleInputChange('selectedSeriesSR', itemValue)}
                                 style={styles.picker}
                             >
@@ -1058,7 +1079,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: PrimaryColor,
         width: 50,
-        height:45,
+        height: 45,
         borderRadius: 12
     },
     inputContainer: {
@@ -1149,5 +1170,11 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 5,
         marginHorizontal: 5
+    },
+    inputTextArea: {
+        marginBottom: 20,
+        backgroundColor: "#fff",
+        height: 45,
+        paddingBottom: 2
     },
 });

@@ -1,13 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   Animated,
   ScrollView,
   TouchableOpacity,
   StatusBar,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -70,6 +70,8 @@ const AnimatedHeader = ({ title, children, showBackButton = true }) => {
           {
             backgroundColor: headerBackgroundColor,
           },
+           Platform.OS==='ios'&&{borderBottomLeftRadius: 0,
+            borderBottomRightRadius: 0,height:100,paddingTop:50}
         ]}
       >
         {showBackButton && (
@@ -87,6 +89,7 @@ const AnimatedHeader = ({ title, children, showBackButton = true }) => {
       </Animated.View>
 
       {/* Scrollable Content */}
+      <KeyboardAvoidingView  behavior={Platform.OS === "ios" ? "padding" : ""}>
       <Animated.ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={{ paddingTop: 60 }}
@@ -102,6 +105,7 @@ const AnimatedHeader = ({ title, children, showBackButton = true }) => {
       >
         {children}
       </Animated.ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 };

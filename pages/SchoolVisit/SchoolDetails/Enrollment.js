@@ -28,7 +28,7 @@ const Enrollment = () => {
     try {
       setLoading(true)
       // Construct the URL with query parameters
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_FindCommonDataForEdit";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_FindCommonDataForEdit";
       const params = {
         ActionType: "GetSchoolDetails",
         iCompanyID: sessionDetails.iCompanyID,
@@ -145,7 +145,7 @@ const handleSubmit = async () => {
   console.log("Updated Enrollment Data:", enrollmentData);
   try {
     // Construct the URL with query parameters
-    const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_UpdateEnrollment";
+    const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_UpdateEnrollment";
     const params = {
       SchoolID: schoolID,
       Enrolment_Pre_Primary: enrollmentData.ppenrolment || 0,

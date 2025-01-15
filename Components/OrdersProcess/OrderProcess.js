@@ -11,6 +11,7 @@ import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import useSessionDetails from '../../Contexts/sessionDetails';
 import Loader from '../Loader';
+import IOSPicker from '../IOSPicker';
 
 const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue, schoolDetails, invoiceYear, invoiceMonth, sampleYear, sampleMonth, formData,
   setFormData,
@@ -38,7 +39,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
     setLoading(true)
     try {
       // Construct the URL with query parameters
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: title === "Title in Series" ? "GetMasterSeries" : "GetMasterTitle",
         iCompanyID: sessionDetails.iCompanyID,
@@ -85,7 +86,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
     setLoading(true)
     try {
       // console.log(classValue, formData.selectedSeries);
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
       const params = {
         ActionType: "LoadBookTypeInSeriesAndBook",
         iCompanyID: sessionDetails.iCompanyID,
@@ -256,7 +257,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
         .filter(Boolean) // Ensure no undefined or null values are included
         .join(',');
 
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
       const params = {
         ActionType: title === "Title in Series" ? "LoadSeriesInTitle" : "LoadTitleClass",
         iCompanyID: sessionDetails.iCompanyID,
@@ -378,7 +379,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
 
     try {
       //console.log(classValue, formData.selectedSeries);
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetMasterPublisherComp",
         iCompanyID: sessionDetails.iCompanyID,
@@ -450,7 +451,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
   const loadAdoptionChances = async () => {
     try {
       //console.log(classValue, formData.selectedSeries);
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetAdpotionChances",
         iCompanyID: sessionDetails.iCompanyID,
@@ -543,6 +544,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
       {/* Dropdowns and Inputs */}
       <View style={styles.dropdownContainer}>
         <Text style={[styles.label, { marginTop: 10 }]}>Broad Subject</Text>
+        
         <View style={[styles.pickerContainer,]}>
           <Picker
             selectedValue={formData.selectedSubject}
@@ -558,6 +560,23 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
             ))}
           </Picker>
         </View>
+        
+        {/* <IOSPicker
+        data={[
+          { label: "Select a subject", value: "" },
+          ...(boardSubject?.map((subject) => ({
+            label: subject.Text_t,
+            value: subject.Value_v,
+          })) || []),
+        ]}
+        selectedValue={formData.selectedSubject}
+        onValueChange={(itemValue) => {
+          handleInputChange("selectedSubject", itemValue);
+          handleInputChange("selectedSeries", ""); // Reset series when subject changes
+        }}
+        placeholder="Select a subject"
+        style={styles.picker}
+      /> */}
       </View>
       {formData.selectedSubject && (
         <View style={styles.dropdownContainer}>

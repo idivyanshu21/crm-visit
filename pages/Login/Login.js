@@ -6,7 +6,7 @@ import { useAuth } from "../../Contexts/Auth";
 import Loader from "../../Components/Loader";
 
 const LoginScreen = ({ navigation }) => {
-  const {login}  = useAuth(); 
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,8 +15,8 @@ const LoginScreen = ({ navigation }) => {
     try {
       setLoading(true);
 
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_Login";
-    //   const params = { UserName: username, Password: password };
+      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_Login";
+      //   const params = { UserName: username, Password: password };
       const url = `${baseUrl}?UserName=${encodeURIComponent(username)}&Password=${encodeURIComponent(password)}`;
 
       const response = await axios.post(url, null, {
@@ -25,7 +25,7 @@ const LoginScreen = ({ navigation }) => {
           Authorization: "Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC",
         },
       });
-    //   console.log(response.data[0])
+      //   console.log(response.data[0])
       const authData = response?.data[0];
       login(authData);
       alert("Login Successful");
@@ -40,40 +40,40 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View>
-        <StatusBar
-                        backgroundColor="rgba(0,0,0,0)"
-                        barStyle="light-content"
-                        translucent={true}
-                        animated
-                    />
-                    {/* Background Image */}
-                    <Image
-                        source={Logo}
-                        style={styles.backgroundImage}
-                    />
-    <View style={styles.container}>
-    {loading && <Loader/>}
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
+      <StatusBar
+        backgroundColor="rgba(0,0,0,0)"
+        barStyle="light-content"
+        translucent={true}
+        animated
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
+      {/* Background Image */}
+      <Image
+        source={Logo}
+        style={styles.backgroundImage}
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Login</Text>
-        )}
-      </TouchableOpacity>
+      <View style={styles.container}>
+        {loading && <Loader />}
+        <TextInput
+          style={styles.input}
+          placeholder="Username"
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Login</Text>
+          )}
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -81,7 +81,7 @@ const LoginScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop:80,
+    marginTop: 80,
     justifyContent: "center",
     alignItems: "center",
     // borderWidth:1,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     height: 220,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
-},
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -11,23 +11,15 @@ import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as DocumentPicker from "expo-document-picker";
 import { MaterialIcons } from "@expo/vector-icons";
+import useSessionDetails from "../../Contexts/sessionDetails";
+import { PrimaryColor } from "../../globalCSS";
+import axios from "axios";
 
-const PrimaryColor = "#6200EE"; // Customize your primary color here
-
-const OrderDetailsForm = () => {
-  const [formData, setFormData] = useState({
-    poNumber: "",
-    deliveryDate: new Date(),
-    orderReason: "",
-    transporterName: "",
-    shippingInstructions: ["", "", ""],
-    bundleRemarks: "",
-    orderRemarks: "",
-    file: null,
-  });
-
+const OrderDetailsForm = ({ formData, setFormData }) => {
   const [errors, setErrors] = useState({});
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const sessionDetails = useSessionDetails()
+  const [reason, setReason] = useState()
 
   const validateForm = () => {
     let newErrors = {};
@@ -40,6 +32,41 @@ const OrderDetailsForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const fetchCustomerDetails = async (billTo) => {
+    try {
+      // Construct the URL with query parameters
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const params = {
+        ActionType: "GetOrderReason",
+        iCompanyID: sessionDetails.iCompanyID,
+        Col1: "",
+        Col2: "",
+        Col3: "",
+        Col4: "",
+        Col5: "",
+        Col6: "",
+        UserID: sessionDetails.UserID,
+      };
+      const url = `${baseUrl}`;
+      const response = await axios.post(url, null, {
+        params: params, // Send the params as query parameters
+        headers: {
+          "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
+        },
+      });
+      const data = response.data;
+      setReason(data)
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchCustomerDetails()
+  }, [sessionDetails])
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || formData.deliveryDate;
@@ -107,7 +134,7 @@ const OrderDetailsForm = () => {
         <TextInput
           label="Required Delivery Date"
           mode="outlined"
-          style={styles.input}
+          style={[styles.input, { width: "100%" }]}
           value={formData.deliveryDate.toISOString().split("T")[0]}
           editable={false}
           theme={{
@@ -145,8 +172,10 @@ const OrderDetailsForm = () => {
           style={styles.picker}
         >
           <Picker.Item label="-- Select Order Reason --" value="" />
-          <Picker.Item label="Reason 1" value="Reason 1" />
-          <Picker.Item label="Reason 2" value="Reason 2" />
+          {reason && reason.map((option, index) => (
+            // {console.log(option)}
+            <Picker.Item key={index} label={option.Text_t} value={option.Value_v} />
+          ))}
         </Picker>
       </View>
       {!!errors.orderReason && (
@@ -234,15 +263,6 @@ const OrderDetailsForm = () => {
         }}
       />
 
-      {/* Submit Button */}
-      <Button
-        mode="contained"
-        onPress={handleSubmit}
-        style={styles.button}
-        theme={{ colors: { primary: PrimaryColor } }}
-      >
-        Submit
-      </Button>
     </View>
   );
 };
@@ -250,7 +270,8 @@ const OrderDetailsForm = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
-    minWidth:"100%"
+    minWidth: "100%",
+    maxHeight: 720
   },
   input: {
     marginBottom: 20,

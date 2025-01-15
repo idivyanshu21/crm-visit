@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-const Enrollment = () => {
+const Enrollment = ({data}) => {
     return (
         <View
             style={[
@@ -23,7 +23,7 @@ const Enrollment = () => {
                     paddingVertical: 6,
                 }}
             >
-                Pre-Primary :
+                Class Nry: {data.ClassNryEnrol}
             </Text>
             <Text
                 style={{
@@ -33,7 +33,7 @@ const Enrollment = () => {
                     paddingVertical: 6,
                 }}
             >
-                Primary :
+                Class LKG: {data.ClassLKGEnrol}
             </Text>
             <Text
                 style={{
@@ -43,7 +43,7 @@ const Enrollment = () => {
                     paddingVertical: 6,
                 }}
             >
-                Middle :
+                Class UKG: {data.ClassUKGEnrol}
             </Text>
             <Text
                 style={{
@@ -53,7 +53,157 @@ const Enrollment = () => {
                     paddingVertical: 6,
                 }}
             >
-                Secondary :
+                Class 1: {data.Class1Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 2: {data.Class2Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 3: {data.Class3Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 4: {data.Class4Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 5: {data.Class5Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 6: {data.Class6Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 7: {data.Class7Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 8: {data.Class8Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 9: {data.Class9Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 10: {data.Class10Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 11: {data.Class11Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Class 12: {data.Class12Enrol}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Pre-Primary : {data.ppenrolment}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Primary : {data.penrolment}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Middle : {data.menrolment}
+            </Text>
+            <Text
+                style={{
+                    width: '90%',
+                    borderBottomWidth: 1,
+                    borderColor: '#00000020',
+                    paddingVertical: 6,
+                }}
+            >
+                Secondary : {data.senrolment}
             </Text>
             <Text
                 style={{
@@ -61,7 +211,7 @@ const Enrollment = () => {
                     paddingVertical: 6,
                 }}
             >
-                Senior Secondary :
+                Senior Secondary : {data.ssenrolment}
             </Text>
         </View>
     );

@@ -16,9 +16,11 @@ import axios from "axios";
 import useSessionDetails from "../../Contexts/sessionDetails";
 import { MultiSelect } from "react-native-element-dropdown";
 import Loader from "../../Components/Loader";
+import { Dropdown } from "react-native-element-dropdown";
+import IOSPicker from "../../Components/IOSPicker";
 
-const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDropdownOpen, setIsDropdownOpen }) => {
-  const [loading,setLoading]=useState(false)
+const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId, isDropdownOpen, setIsDropdownOpen }) => {
+  const [loading, setLoading] = useState(false)
   const sessionDetails = useSessionDetails()
   const [visited, setvisited] = useState()
   const [epm, setEpm] = useState()
@@ -34,7 +36,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
   const fetchVisitedWithOtherExecutives = async () => {
     setLoading(true)
     try {
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetExecByTerritory",
         iCompanyID: sessionDetails?.iCompanyID,
@@ -44,7 +46,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
         Col4: "",
         Col5: "",
         Col6: "",
-        UserID:sessionDetails?.ExecutiveID,
+        UserID: sessionDetails?.ExecutiveID,
       };
 
       const url = `${baseUrl}`;
@@ -68,7 +70,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
   const fetchEPM = async () => {
     setLoading(true)
     try {
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetEPMExecutive",
         iCompanyID: sessionDetails?.iCompanyID,
@@ -105,7 +107,12 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
     fetchEPM()
   }, [sessionDetails]);
 
- 
+  const dropdownData = [
+    { label: "Visited Purpose*", value: "" },
+    { label: "Product Orientation", value: 1 },
+    { label: "Product Promotion", value: 2 },
+    { label: "Product Demo", value: 3 },
+  ];
 
   const [errors, setErrors] = useState({});
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -186,7 +193,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
 
   return (
     <View style={styles.container}>
-      {loading && <Loader/>}
+      {loading && <Loader />}
       <TouchableOpacity onPress={toggleDropdown} style={styles.header}>
         <Text style={styles.title}>Enter Visit Details</Text>
         <MaterialIcons
@@ -221,23 +228,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
             <Text style={styles.errorText}>{errors.executive}</Text>
           )}
 
-          {/* Visited With Dropdown */}
-          {/* <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={formData.visitedWith}
-              onValueChange={(value) =>
-                setFormData({ ...formData, visitedWith: value })
-              }
-              style={styles.picker}
-            >
-              <Picker.Item label="Select Executive" value="" />
-              {visited?.map((executive) => (
-                <Picker.Item label={executive.Text_t} value={executive.Value_v} />
-              ))}
-            </Picker>
-          </View> */}
-
-          <View style={[styles.pickerContainer,{height:'auto',paddingHorizontal:10,paddingBottom:10}]}>
+          <View style={[styles.pickerContainer, { height: 'auto', paddingHorizontal: 10, paddingBottom: 10 }]}>
             <MultiSelect
               style={[styles.picker, isFocus && { borderColor: "#6C63FF" }]}
               data={visited?.map((executive) => ({
@@ -255,7 +246,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
               selectedStyle={styles.selectedStyle}
               placeholderStyle={styles.placeholderStyle}
               activeColor={PrimaryColorLight3}
-              selectedTextStyle={{color:PrimaryColor}}
+              selectedTextStyle={{ color: PrimaryColor }}
             />
           </View>
           {!!errors.visitedWith && (
@@ -263,27 +254,60 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
           )}
 
           {/* Purpose Picker */}
-          <View style={styles.pickerContainer}>
-            <Picker
+          {Platform.OS === 'android' &&
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={formData.purpose}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, purpose: value })
+                }
+                style={styles.picker}
+              >
+                <Picker.Item label="Visited Purpose*" value="" />
+                <Picker.Item label="Product Orientation" value={1} />
+                <Picker.Item label="Product Promotion" value={2} />
+                <Picker.Item label="Product Demo" value={3} />
+              </Picker>
+            </View>}
+          {Platform.OS === 'ios' &&
+            <IOSPicker
               selectedValue={formData.purpose}
               onValueChange={(value) =>
                 setFormData({ ...formData, purpose: value })
               }
               style={styles.picker}
             >
-              <Picker.Item label="Visited Purpose*" value="" />
-              <Picker.Item label="Product Orientation" value={1} />
-              <Picker.Item label="Product Promotion" value={2} />
-              <Picker.Item label="Product Demo" value={3} />
-            </Picker>
-          </View>
+              <IOSPicker.Item label="Visited Purpose*" value="" />
+              <IOSPicker.Item label="Product Orientation" value={1} />
+              <IOSPicker.Item label="Product Promotion" value={2} />
+              <IOSPicker.Item label="Product Demo" value={3} />
+            </IOSPicker>}
+
           {!!errors.purpose && (
             <Text style={styles.errorText}>{errors.purpose}</Text>
           )}
           {formData.purpose === 3 && (
             <>
-              <View style={styles.pickerContainer}>
-                <Picker
+              {Platform.OS === 'android' &&
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={formData.demoBy}
+                    onValueChange={(itemValue) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        demoBy: itemValue
+                      }));
+                    }}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Demo By*" value="" />
+                    <Picker.Item label="Demo By Self" value="DemoBySelf" />
+                    <Picker.Item label="Demo By EPM" value="DemoByEPM" />
+                  </Picker>
+                </View>}
+
+              {Platform.OS === 'ios' &&
+                <IOSPicker
                   selectedValue={formData.demoBy}
                   onValueChange={(itemValue) => {
                     setFormData((prev) => ({
@@ -293,14 +317,30 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
                   }}
                   style={styles.picker}
                 >
-                  <Picker.Item label="Demo By*" value="" />
-                  <Picker.Item label="Demo By Self" value="DemoBySelf" />
-                  <Picker.Item label="Demo By EPM" value="DemoByEPM" />
-                </Picker>
-              </View>
+                  <IOSPicker.Item label="Demo By*" value="" />
+                  <IOSPicker.Item label="Demo By Self" value="DemoBySelf" />
+                  <IOSPicker.Item label="Demo By EPM" value="DemoByEPM" />
+                </IOSPicker>}
 
-              <View style={styles.pickerContainer}>
-                <Picker
+              {Platform.OS === 'android' &&
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={formData.demoType}
+                    onValueChange={(itemValue) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        demoType: itemValue
+                      }));
+                    }}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Demo Type*" value="" />
+                    <Picker.Item label="Altura Demo" value="Altura Demo" />
+                    <Picker.Item label="Other Titles" value="Other Titles" />
+                  </Picker>
+                </View>}
+              {Platform.OS === 'ios' &&
+                <IOSPicker
                   selectedValue={formData.demoType}
                   onValueChange={(itemValue) => {
                     setFormData((prev) => ({
@@ -310,17 +350,34 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
                   }}
                   style={styles.picker}
                 >
-                  <Picker.Item label="Demo Type*" value="" />
-                  <Picker.Item label="Altura Demo" value="Altura Demo" />
-                  <Picker.Item label="Other Titles" value="Other Titles" />
-                </Picker>
-              </View>
+                  <IOSPicker.Item label="Demo Type*" value="" />
+                  <IOSPicker.Item label="Altura Demo" value="Altura Demo" />
+                  <IOSPicker.Item label="Other Titles" value="Other Titles" />
+                </IOSPicker>}
             </>
           )}
 
           {(formData.purpose === 3 && formData.demoBy === "DemoByEPM") && (
-            <View style={styles.pickerContainer}>
-              <Picker
+            Platform.OS === 'android' ?
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={formData.selectedEPM}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      selectedEPM: value,
+                    }))
+                  }
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select EPM*" value="" />
+                  {epm?.map((executive) => (
+                    <Picker.Item key={executive.Value_v} label={executive.Text_t} value={executive.Value_v} />
+                  ))}
+                </Picker>
+              </View>
+              :
+              <IOSPicker
                 selectedValue={formData.selectedEPM}
                 onValueChange={(value) =>
                   setFormData((prev) => ({
@@ -330,12 +387,11 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
                 }
                 style={styles.picker}
               >
-                <Picker.Item label="Select EPM*" value="" />
+                <IOSPicker.Item label="Select EPM*" value="" />
                 {epm?.map((executive) => (
-                  <Picker.Item label={executive.Text_t} value={executive.Value_v} />
+                  <IOSPicker.Item label={executive.Text_t} value={executive.Value_v} />
                 ))}
-              </Picker>
-            </View>
+              </IOSPicker>
           )}
 
           {/* Date Picker - Entire Container Clickable */}
@@ -459,21 +515,36 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId,isDr
               )}
 
               {/* Follow-Up Action */}
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={formData.followUpAction}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, followUpAction: value })
-                  }
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Follow-Up Action" value="" />
-                  <Picker.Item label="Manager Visit" value={1} />
-                  <Picker.Item label="Calling" value={2} />
-                  <Picker.Item label="Sampling" value={3} />
-                </Picker>
-              </View>
-
+              {Platform.OS === 'android' &&
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={formData.followUpAction}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, followUpAction: value })
+                    }
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Follow-Up Action" value="" />
+                    <Picker.Item label="Manager Visit" value={1} />
+                    <Picker.Item label="Calling" value={2} />
+                    <Picker.Item label="Sampling" value={3} />
+                  </Picker>
+                </View>
+              }
+              {Platform.OS === 'ios' &&
+                  <IOSPicker
+                    selectedValue={formData.followUpAction}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, followUpAction: value })
+                    }
+                    style={styles.picker}
+                  >
+                    <IOSPicker.Item label="Follow-Up Action" value="" />
+                    <IOSPicker.Item label="Manager Visit" value={1} />
+                    <IOSPicker.Item label="Calling" value={2} />
+                    <IOSPicker.Item label="Sampling" value={3} />
+                  </IOSPicker>
+              }
               {/* Remark */}
               <TextInput
                 label="Remark*"
@@ -568,10 +639,10 @@ const styles = StyleSheet.create({
   selectedStyle: {
     flexDirection: "row",
     flexWrap: "wrap",
-    backgroundColor:PrimaryColorLight3,
+    backgroundColor: PrimaryColorLight3,
     padding: 5,
     borderWidth: 1,
-    color:'blue',
+    color: 'blue',
     borderColor: PrimaryColorLight,
     borderRadius: 20,
   },

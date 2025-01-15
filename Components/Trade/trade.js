@@ -4,7 +4,7 @@ import SearchableDropDown from "react-native-searchable-dropdown";
 import { useState } from "react";
 import globalStyles from "../../globalCSS";
 
-const Trade = () => {
+const Trade = ({ formData, setFormData, stateId, setStateId, fetchCustomerDetails }) => {
     const [state, setState] = useState("")
     const StateData = States.map((item) => ({ id: item.Value_v, name: item.Text_t }))
     return (
@@ -13,11 +13,21 @@ const Trade = () => {
             <View style={[globalStyles.dropdownContainer, { minWidth: '100%', marginBottom: 10 }]}>
                 <SearchableDropDown
                     items={StateData} // Dropdown options
-                    onItemSelect={(item) => setState(item.name)} // Update input field
+                    onItemSelect={(item) => {
+                        setFormData((prev) => ({
+                            ...prev,
+                            state: item.name,
+                        }))
+                        setStateId(item.id)
+                    }
+                    } // Update input field
                     textInputProps={{
-                        value: state, // Bind value to input
+                        value: formData.state, // Bind value to input
                         placeholder: "Search and select",
-                        onChangeText: (text) => setState(text), // Update value on typing
+                        onChangeText: (text) => setFormData((prev) => ({
+                            ...prev,
+                            state: text,
+                        })), // Update value on typing
                     }}
                     placeholder="Search and select"
                     itemStyle={globalStyles.dropdownItem} // Style for dropdown items
@@ -33,8 +43,18 @@ const Trade = () => {
             <View>
                 <Text style={{ paddingBottom: 5, color: '#00000095' }}>Sap Code*</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-                    <TextInput style={[globalStyles.dropdownContainer, { height: 40, width: '65%', paddingLeft: 5, marginBottom: 10 }]} value="" placeholder="Enter SAP Code" />
-                    <TouchableOpacity style={globalStyles.button}>
+                    <TextInput
+                        keyboardType="numeric"
+                        style={[globalStyles.dropdownContainer, { height: 40, width: '65%', paddingLeft: 5, marginBottom: 10 }]}
+                        value={formData.sapCode}
+                        placeholder="Enter SAP Code"
+                        onChangeText={(value) => {
+                            setFormData((prev) => ({
+                                ...prev,
+                                "sapCode": value,
+                            }));
+                        }} />
+                    <TouchableOpacity onPress={()=>fetchCustomerDetails()} style={globalStyles.button}>
                         <Text style={globalStyles.buttonText}>Search</Text>
                     </TouchableOpacity>
                 </View>

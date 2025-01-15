@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     Image,
     ScrollView,
+    Platform,
 } from "react-native";
 import BG from '../../assets/Images/schoolvisitbg.jpg';
 import Dropdown from "../../Components/Dropdown/Dropdown";
@@ -115,9 +116,9 @@ const SchoolVisitScreen = () => {
     const OnSubmit = async () => {
         // console.log("+++---",tableData)
         // console.log("++++++",salesPlanData)
-        // console.log("------",salesPlanDetailData)
-        console.log('=+++===+++===+++=', samplingRequestData)
-        console.log('_>_>_>_>_>_>_>_>_>', samplingRequestDetailData)
+        console.log("------",salesPlanDetailData)
+        // console.log('=+++===+++===+++=', samplingRequestData)
+        // console.log('_>_>_>_>_>_>_>_>_>', samplingRequestDetailData)
         const {
             purpose,
             visitDate,
@@ -186,15 +187,12 @@ const SchoolVisitScreen = () => {
             if (!remark) {
                 alert("Remark is required.");
                 return;
-            } else if (remark.length <= 50) {
-                alert("Remark must be greater than 50 characters.");
-                return;
             }
         }
 
-        if (salesPlanData && salesPlanData.length > 0) {
-            const invalidEntries = salesPlanData.filter(item => 
-                !item.AdoptionChances || !item.CompPublisher || !item.Title || !item.Series
+        if (salesPlanDetailData && salesPlanDetailData.length > 0) {
+            const invalidEntries = salesPlanDetailData.filter(item => 
+                !item.AddoptionChances || !item.CompPublisher || !item.Title || !item.Series
             );
             if (invalidEntries.length > 0) {
                 alert("Sales Plan Data is invalid. Ensure 'Adoption Chances', 'Publisher', 'Title', and 'Series' are filled for all entries.");
@@ -204,7 +202,7 @@ const SchoolVisitScreen = () => {
 
         setLoading(true)
         try {
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_InsertVisitEntryMaster";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_InsertVisitEntryMaster";
             const body = {
                 "jsonObj": {
                     "AppId": 0,
@@ -345,7 +343,7 @@ const SchoolVisitScreen = () => {
     };
 
     useEffect(() => {
-        const filteredData = orderList.map((item) => ({
+        const filteredData = orderList?.map((item) => ({
             BookCode: item.BookCode || null,
             CB_Qty: item.CB_Qty || 0,
             CD_Qty: item.CD_Qty || 0,
@@ -368,7 +366,7 @@ const SchoolVisitScreen = () => {
 
     //salesPlanDetailsData
     const extractRelevantData = () => {
-        const extractedData = tableData.map((item) => ({
+        const extractedData = tableData?.map((item) => ({
             AddoptionChances: item.AdoptionChances || null,
             BookCode: item.BookCode || null,
             CompPublisher: item.competitorPublisher || null,
@@ -390,7 +388,7 @@ const SchoolVisitScreen = () => {
     }, [tableData]); // Run whenever tableData updates
 
     useEffect(() => {
-        const newFilteredCards = cards.map(card => {
+        const newFilteredCards = cards?.map(card => {
             const {
                 cardId,
                 shipment_Mode,
@@ -435,7 +433,7 @@ const SchoolVisitScreen = () => {
     }, [renewalOpportunitiesTable]);
 
     useEffect(() => {
-        const newFilteredCards = tableDataSR.map(details => {
+        const newFilteredCards = tableDataSR?.map(details => {
             const {
                 BookName,
                 cardId,
@@ -452,7 +450,7 @@ const SchoolVisitScreen = () => {
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetAllTypeCustomerWithSearch",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -506,7 +504,7 @@ const SchoolVisitScreen = () => {
         try {
             setLoading(true)
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_FindCommonDataForEdit";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_FindCommonDataForEdit";
             const params = {
                 ActionType: "GetSchoolDetails",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -534,7 +532,7 @@ const SchoolVisitScreen = () => {
     const loadTable = async () => {
         try {
             // console.log(classValue, formData.selectedSeries);
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "GetOppurtunitySchoolWise",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -603,7 +601,7 @@ const SchoolVisitScreen = () => {
     // const fetchBusinessDetails = async () => {
     //     try {
     //         // Construct the URL with query parameters
-    //         const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_FindCommonDataForEdit";
+    //         const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_FindCommonDataForEdit";
     //         const params = {
     //             ActionType: "GetSchoolDetails",
     //             iCompanyID: 1,
@@ -682,7 +680,7 @@ const SchoolVisitScreen = () => {
         }
     };
 
-    const dropdownOptions = orderData.map((item) => ({ id: item.Value_v, name: item.Text_t }))
+    const dropdownOptions = orderData?.map((item) => ({ id: item.Value_v, name: item.Text_t }))
     const renderTabContent = () => {
         switch (activeTab) {
             case "Visit":
@@ -783,7 +781,7 @@ const SchoolVisitScreen = () => {
             {/* Background Image */}
             <Image
                 source={BG}
-                style={styles.backgroundImage}
+                style={[styles.backgroundImage, Platform.OS==='ios'&&{borderBottomLeftRadius:0, borderBottomRightRadius: 0,}]}
             />
 
             {/* Dropdown */}

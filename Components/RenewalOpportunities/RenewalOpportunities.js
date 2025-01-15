@@ -22,7 +22,7 @@ const RenewalOpportunities = ({ schoolID, details, setdetails, renewalOpportunit
     
     try {
       // console.log(classValue, formData.selectedSeries);
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
       const params = {
         ActionType: "GetRenewalOpportunitiesDetails",
         iCompanyID: sessionDetails.iCompanyID,
@@ -64,7 +64,7 @@ const RenewalOpportunities = ({ schoolID, details, setdetails, renewalOpportunit
   const loadAdoptionChances = async () => {
     try {
       //console.log(classValue, formData.selectedSeries);
-      const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetAdpotionChances",
         iCompanyID: sessionDetails.iCompanyID,

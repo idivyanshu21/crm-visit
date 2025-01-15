@@ -17,7 +17,7 @@ const SamplingHistory = ({ schoolId }) => {
         const isoDate = today.toISOString().split('T')[0];
         try {
             setLoading(true);
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_SchoolSamplingReport";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_SchoolSamplingReport";
             const params = {
                 ActionType: "GetSchoolSamplingData",
                 RequestedBy: sessionDetails.ExecutiveID,

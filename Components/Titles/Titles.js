@@ -90,7 +90,7 @@ const Titles = ({ upload = false, salesPlan, samplingRequest = false, schoolCode
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetBroadSubjectInExecutiveWithSeriesAndTitle",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -126,7 +126,7 @@ const Titles = ({ upload = false, salesPlan, samplingRequest = false, schoolCode
     };
     const fetchmonths = async () => {
         try {
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "GetSchoolSamplingMonth",
                 iCompanyID: sessionDetails.iCompanyID,

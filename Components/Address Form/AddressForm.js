@@ -66,7 +66,7 @@ const AddressForm = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View contentContainerStyle={styles.container}>
       {/* Country Dropdown */}
       <Text style={styles.label}>Country:</Text>
       <SearchableDropdown
@@ -150,7 +150,7 @@ const AddressForm = () => {
 
       {/* Debug: Show Form Data */}
       {/* <Text style={styles.debugText}>Form Data: {JSON.stringify(formData, null, 2)}</Text> */}
-    </ScrollView>
+    </View>
   );
 };
 
