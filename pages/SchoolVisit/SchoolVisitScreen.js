@@ -112,7 +112,12 @@ const SchoolVisitScreen = () => {
         "11": [11],
         "12": [12],
     };
-
+    function generateRandom10DigitNumber() {
+        return (Math.floor(1000000000 + Math.random() * 9000000000)).toString();
+    }
+    function generateRandom4DigitString() {
+        return (Math.floor(1000 + Math.random() * 9000)).toString();
+    }
     const OnSubmit = async () => {
         // console.log("+++---",tableData)
         // console.log("++++++",salesPlanData)
@@ -205,7 +210,7 @@ const SchoolVisitScreen = () => {
             const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_InsertVisitEntryMaster";
             const body = {
                 "jsonObj": {
-                    "AppId": 0,
+                    "AppId": generateRandom4DigitString(),
                     "Approved": false,
                     "ApprovedBy": 0,
                     "ApprovedOn": "",
@@ -254,7 +259,7 @@ const SchoolVisitScreen = () => {
                     "ShipToAddressType": null,
                     "SourceofLead": null,
                     "Status": null,
-                    "TabID": "215332539709",
+                    "TabID": generateRandom10DigitNumber(),
                     "TVAppId": 0,
                     "TVUniqueID": 0,
                     "UpdateTime": "",

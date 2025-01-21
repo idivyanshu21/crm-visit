@@ -13,19 +13,29 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 const IOSPicker = ({
   selectedValue,
   onValueChange,
-  data = [], // Array of options {label, value}
+  data = [], // Array of options [{label, value, color}]
   placeholder = "Select an option",
   style,
   modalStyle,
   itemStyle,
+  placeholderColor = "#00000099", // Default placeholder color
+  defaultColor = "#333", // Default color for non-placeholder items
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Find the label corresponding to the selected value
-  const selectedLabel =
-    data.find((item) => item.value == selectedValue)?.label || placeholder;
+  // Normalize data to { label, value, color } format
+  const normalizedData = data.map((item) => ({
+    label: item.label || item.Text_t,
+    value: item.value || item.Value_v,
+    color: item.color || defaultColor,
+  }));
 
-  const handleSelect = (value, label) => {
+  // Find the selected label and its color
+  const selectedOption = normalizedData.find((item) => item.value === selectedValue);
+  const selectedLabel = selectedOption?.label || placeholder;
+  const selectedColor = selectedOption?.value ? defaultColor : placeholderColor;
+
+  const handleSelect = (value) => {
     setModalVisible(false); // Close the modal
     onValueChange(value); // Trigger parent state update
   };
@@ -36,7 +46,9 @@ const IOSPicker = ({
         style={styles.input}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.inputText}>{selectedLabel}</Text>
+        <Text style={[styles.inputText, { color: selectedColor }]}>
+          {selectedLabel}
+        </Text>
         <Icon name="arrow-drop-down" size={24} color="#333" style={styles.icon} />
       </TouchableOpacity>
 
@@ -52,14 +64,16 @@ const IOSPicker = ({
         >
           <View style={[styles.modalContainer, modalStyle]}>
             <FlatList
-              data={data}
+              data={normalizedData}
               keyExtractor={(item) => String(item.value)}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={[styles.item, itemStyle]}
-                  onPress={() => handleSelect(item.value, item.label)}
+                  onPress={() => handleSelect(item.value)}
                 >
-                  <Text style={styles.itemText}>{item.label}</Text>
+                  <Text style={[styles.itemText, { color: item.color }]}>
+                    {item.label}
+                  </Text>
                 </TouchableOpacity>
               )}
             />
@@ -70,15 +84,18 @@ const IOSPicker = ({
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     marginBottom: 10,
+    minWidth: "100%"
   },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 11,
-    padding: 14,
+    padding: 10,
+    paddingHorizontal: 14,
     backgroundColor: "#fff",
     flexDirection: "row",
     justifyContent: "space-between",
@@ -101,8 +118,9 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     padding: 20,
     width: "90%",
-    maxHeight: "80%",
+    maxHeight: "90%",
     alignSelf: "center",
+    paddingHorizontal:5
   },
   item: {
     padding: 15,

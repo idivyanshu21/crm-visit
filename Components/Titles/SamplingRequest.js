@@ -6,10 +6,11 @@ import OrderProcess from '../OrdersProcess/OrderProcess';
 import uploadIcon from "../../assets/cloud.png"
 import { Picker } from '@react-native-picker/picker';
 import { TextInput } from 'react-native-gesture-handler';
-import { TextInput as PaperTextInput,DefaultTheme } from "react-native-paper";
+import { TextInput as PaperTextInput, DefaultTheme } from "react-native-paper";
 import axios from 'axios';
 import useSessionDetails from '../../Contexts/sessionDetails';
 import Loader from '../Loader';
+import IOSPicker from '../IOSPicker';
 
 const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
     formData,
@@ -88,9 +89,9 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         }));
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log(formData)
-    },[formData])
+    }, [formData])
 
     const getConcatenatedBookCodes = () => {
         let concatenatedCodes = "";
@@ -371,11 +372,12 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
             console.log(response)
             setteacher(data)
 
-            if(data.length === 1){ 
+            if (data.length === 1) {
                 setFormData((prev) => ({
                     ...prev,
-                    teacher:data[0].Value_v ,
-                }));}
+                    teacher: data[0].Value_v,
+                }));
+            }
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -632,32 +634,33 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         <View style={{ width: '95%' }}>
             {loading && <Loader />}
             {samplingRequest && <>
-                <View style={styles.formGroup}>
-                    <Picker
-                        selectedValue={formData.shipmentMode}
-                        style={styles.dropdown}
-                        onValueChange={(itemValue) => {
-                            handleInputChange('shipmentMode', itemValue);
-                        }}>
-                        <Picker.Item label="Shipment Mode" value="" />
-                        {shipmentMode && shipmentMode?.map((mode) => (
-                            <Picker.Item key={mode} label={mode.Text_t} value={mode.Value_v} />
-                        ))}
-                    </Picker>
-                </View>
+                <Text style={[styles.label, { marginBottom: 5 }]}>Shipment Mode</Text>
+                <IOSPicker
+                    selectedValue={formData.shipmentMode}
+                    onValueChange={(itemValue) => handleInputChange('shipmentMode', itemValue)}
+                    data={[
+                        { label: "Shipment Mode", value: "", color: '#00000070' },
+                        ...(shipmentMode?.map((mode) => ({
+                            label: mode.Text_t,
+                            value: mode.Value_v
+                        })) || [])
+                    ]}
+                    placeholder="Shipment Mode"
+                />
+
                 <View style={styles.dropdownContainer}>
-                    <Text style={styles.label}>Ship To</Text>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={formData.shipTo}
-                            onValueChange={(itemValue) => handleInputChange('shipTo', itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Select Ship Location" value="" />
-                            <Picker.Item label="Official Address" value="official" />
-                            <Picker.Item label="Residence Address" value="residence" />
-                        </Picker>
-                    </View>
+                    <Text style={[styles.label, { marginBottom: 5 }]}>Ship To</Text>
+                    <IOSPicker
+                        selectedValue={formData.shipTo}
+                        onValueChange={(itemValue) => handleInputChange('shipTo', itemValue)}
+                        data={[
+                            { label: "Select Ship Location", value: "", color: '#00000070' },
+                            { label: "Official Address", value: "official" },
+                            { label: "Residence Address", value: "residence" }
+                        ]}
+                        placeholder="Select Ship Location"
+                    />
+
                 </View>
                 <PaperTextInput
                     label='Shipping Instructions'
@@ -761,58 +764,49 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
             )}
             {<>
                 <View style={styles.dropdownContainer}>
-                    <Text style={[styles.label, { marginTop: 10 }]}>Broad Subject</Text>
-                    <View style={[styles.pickerContainer,]}>
-                        <Picker
-                            selectedValue={formData.selectedSubjectSR}
-                            onValueChange={(itemValue) => {
-                                handleInputChange('selectedSubjectSR', itemValue);
-                            }}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Select a subject" value="" />
-                            {subject[0]?.Text_t && subject?.map((sub) => (
-                                <Picker.Item key={sub} label={sub.Text_t} value={sub.Value_v} />
-                            ))}
-                        </Picker>
-                    </View>
+                    <Text style={[styles.label, { marginTop: 10, marginBottom: 5 }]}>Broad Subject</Text>
+                    {subject[0]?.Text_t && <IOSPicker
+                        selectedValue={formData.selectedSubjectSR}
+                        onValueChange={(itemValue) => handleInputChange('selectedSubjectSR', itemValue)}
+                        data={[
+                            { label: "Select a subject", value: "", color: '#00000070' },
+                            ...subject?.map((sub) => ({ label: sub.Text_t, value: sub.Value_v })) || []
+                        ]}
+                        placeholder="Select a subject"
+                    />}
+
                 </View>
                 {samplingRequest && (
                     <>
                         {teacher &&
                             <View style={styles.dropdownContainer}>
-                                <Text style={styles.label}>Teacher</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.teacher}
-                                        onValueChange={(itemValue) => handleInputChange('teacher', itemValue)}
-                                        style={styles.picker}
-                                    >
-                                        {teacher[0]?.Text_t && teacher?.map((sub) => (
-                                            <Picker.Item key={sub} label={sub.Text_t} value={sub.Value_v} />
-                                        ))}
-                                    </Picker>
-                                </View>
+                                <Text style={[styles.label, { marginBottom: 5 }]}>Teacher</Text>
+                                <IOSPicker
+                                    selectedValue={formData.teacher}
+                                    onValueChange={(itemValue) => handleInputChange('teacher', itemValue)}
+                                    data={teacher?.map((sub) => ({ label: sub.Text_t, value: sub.Value_v })) || []}
+                                    placeholder="Select a teacher"
+                                />
+
                             </View>
                         }
                     </>
                 )}
                 {formData.selectedSubjectSR !== '' && (
                     <View style={styles.dropdownContainer}>
-                        <Text style={styles.label}>{title === "Title in Series" ? "Series" : "Title"}</Text>
-                        <View style={styles.pickerContainer}>
-                            <Picker
-                                selectedValue={formData.selectedSeriesSR}
-                                onValueChange={(itemValue) => handleInputChange('selectedSeriesSR', itemValue)}
-                                style={styles.picker}
-                            >
-                                <Picker.Item label={title === "Title in Series" ? "Select a series" : "Select a Title"} value="" />
-                                {/* {series && console.log(series)} */}
-                                {series && series.map((series) => (
-                                    <Picker.Item key={series} label={series.Text_t} value={series.Value_v} />
-                                ))}
-                            </Picker>
-                        </View>
+                        <Text style={[styles.label, { marginBottom: 5 }]}>{title === "Title in Series" ? "Series" : "Title"}</Text>
+                        <IOSPicker
+                            selectedValue={formData.selectedSeriesSR}
+                            onValueChange={(itemValue) => handleInputChange('selectedSeriesSR', itemValue)}
+                            data={[
+                                { label: title === "Title in Series" ? "Select a series" : "Select a Title", value: "", color: '#00000070' },
+                                ...(series?.map((seriesItem) => ({
+                                    label: seriesItem.Text_t,
+                                    value: seriesItem.Value_v,
+                                })) || []),
+                            ]}
+                        />
+
                     </View>
                 )}
 
@@ -836,34 +830,32 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
                 )}
 
                 <View style={styles.dropdownContainer}>
-                    <Text style={styles.label}>Sampling Copy Type</Text>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={formData.samplingCopyType}
-                            onValueChange={(itemValue) => handleInputChange('samplingCopyType', itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Select Sampling Copy" value="" />
-                            <Picker.Item label="Promotion Copy" value="P" />
-                            <Picker.Item label="Teachers Copy" value="T" />
-                        </Picker>
-                    </View>
+                    <Text style={[styles.label, { marginBottom: 5 }]}>Sampling Copy Type</Text>
+                    <IOSPicker
+                        selectedValue={formData.samplingCopyType}
+                        onValueChange={(itemValue) => handleInputChange('samplingCopyType', itemValue)}
+                        data={[
+                            { label: "Select Sampling Copy", value: "", color: '#00000070', color: '#00000070' },
+                            { label: "Promotion Copy", value: "P" },
+                            { label: "Teachers Copy", value: "T" }
+                        ]}
+                    />
+
                 </View>
 
                 <View style={styles.dropdownContainer}>
-                    <Text style={styles.label}>Sampling Type</Text>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={formData.samplingType}
-                            onValueChange={(itemValue) => handleInputChange('samplingType', itemValue)}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Select Sampling Type" value="" />
-                            <Picker.Item label="Already Given" value="AlreadyGiven" />
-                            <Picker.Item label="No Sampling" value="NoSampling" />
-                            <Picker.Item label="To Be Dispatched" value="ToBeDispatched" />
-                        </Picker>
-                    </View>
+                    <Text style={[styles.label, { marginBottom: 5 }]}>Sampling Type</Text>
+                    <IOSPicker
+                        selectedValue={formData.samplingType}
+                        onValueChange={(itemValue) => handleInputChange('samplingType', itemValue)}
+                        data={[
+                            { label: "Select Sampling Type", value: "",color:"#00000070" },
+                            { label: "Already Given", value: "AlreadyGiven" },
+                            { label: "No Sampling", value: "NoSampling" },
+                            { label: "To Be Dispatched", value: "ToBeDispatched" }
+                        ]}
+                    />
+
                 </View>
 
                 <TouchableOpacity style={styles.addButton} onPress={() => {

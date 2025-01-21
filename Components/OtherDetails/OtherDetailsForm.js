@@ -14,8 +14,12 @@ import { MaterialIcons } from "@expo/vector-icons";
 import useSessionDetails from "../../Contexts/sessionDetails";
 import { PrimaryColor } from "../../globalCSS";
 import axios from "axios";
+import * as FileSystem from "expo-file-system";
+import IOSPicker from "../IOSPicker";
 
-const OrderDetailsForm = ({ formData, setFormData }) => {
+const OrderDetailsForm = ({ formData, setFormData,tabID }) => {
+  const [file, setFile] = useState('')
+  const [fileDetails,setFileDetails]=useState({})
   const [errors, setErrors] = useState({});
   const [showDatePicker, setShowDatePicker] = useState(false);
   const sessionDetails = useSessionDetails()
@@ -75,13 +79,67 @@ const OrderDetailsForm = ({ formData, setFormData }) => {
   };
 
   const handleFileUpload = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: "application/octet-stream",
-    });
-    if (result.type === "success") {
-      setFormData({ ...formData, file: result });
+    try {
+      console.log("executed")
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "*/*", // MIME type for .msg files
+      });
+      console.log(result)
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedFile = result.assets[0]; // Access the first file in the assets array
+        const fileExtension = selectedFile.name.split('.').pop().toLowerCase();
+
+        if (fileExtension !== "msg") {
+          alert("Please upload a valid .msg file.");
+          return; // Stop further processing if the file is not .msg
+        }
+        // Read the file contents as Base64
+        const base64Content = await FileSystem.readAsStringAsync(selectedFile.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        setFileDetails(selectedFile)
+        setFile(base64Content);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload the file. Please try again.");
     }
   };
+  useEffect(() => {
+    if (file && fileDetails) {
+      console.log("+++++++++++++++++++++++++++++++++++++>>>>>",file)
+      const uploadFile = async () => {
+        try {
+          const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_UploadFiles";
+          const body = {
+            UserID: sessionDetails.UserID,
+            iCompanyID: sessionDetails.iCompanyID,
+            TabID: Number(tabID),
+            FileName: fileDetails.name,
+            FileExtension: ".msg",
+            FileBase64: file.toString(),
+          };
+  
+          const response = await axios.post(baseUrl, body, {// Send the params as query parameters
+            headers: {
+              "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
+            },
+          });
+          
+          const data = response.data;
+          console.log(":", data);
+          if(data[0].Result!=='File Not uploaded'){
+          alert("File uploaded Successfully!");}
+        } catch (error) {
+          console.error("Error uploading file:", error);
+        }
+      };
+      
+      uploadFile();
+    }
+  }, [file, fileDetails]);
+  
 
   const handleSubmit = () => {
     if (validateForm()) {
@@ -90,7 +148,7 @@ const OrderDetailsForm = ({ formData, setFormData }) => {
       alert("Please correct the errors and try again.");
     }
   };
-const date = new Date()
+  const date = new Date()
   return (
     <View style={styles.container}>
       {/* File Upload */}
@@ -102,6 +160,24 @@ const date = new Date()
           {formData.file ? "File Uploaded" : "+ Upload Order Copy"}
         </Text>
       </TouchableOpacity>
+
+      <TextInput
+        label="Order Remarks"
+        mode="outlined"
+        style={styles.input}
+        value={formData.orderRemarks}
+        onChangeText={(text) =>
+          setFormData({ ...formData, orderRemarks: text })
+        }
+        theme={{
+          roundness: 11,
+          colors: {
+            ...DefaultTheme.colors,
+            primary: PrimaryColor,
+            outline: "#00000020",
+          },
+        }}
+      />
 
       {/* PO Number */}
       <TextInput
@@ -135,7 +211,7 @@ const date = new Date()
           label="Required Delivery Date"
           mode="outlined"
           style={[styles.input, { width: "100%" }]}
-          value={formData.deliveryDate ? formData?.deliveryDate?.toISOString().split("T")[0]:""}
+          value={formData.deliveryDate ? formData?.deliveryDate?.toISOString().split("T")[0] : ""}
           editable={false}
           theme={{
             roundness: 11,
@@ -155,7 +231,7 @@ const date = new Date()
       </TouchableOpacity>
       {showDatePicker && (
         <DateTimePicker
-          value={formData.deliveryDate ? formData.deliveryDate:date}
+          value={formData.deliveryDate ? formData.deliveryDate : date}
           mode="date"
           display="default"
           onChange={handleDateChange}
@@ -163,7 +239,7 @@ const date = new Date()
       )}
 
       {/* Order Reason */}
-      <View style={styles.pickerContainer}>
+      {/* <View style={styles.pickerContainer}>
         <Picker
           selectedValue={formData.orderReason}
           onValueChange={(value) =>
@@ -171,13 +247,29 @@ const date = new Date()
           }
           style={styles.picker}
         >
-          <Picker.Item label="-- Select Order Reason --" value="" />
+          <Picker.Item label="Select Order Reason" value="" />
           {reason && reason.map((option, index) => (
             // {console.log(option)}
             <Picker.Item key={index} label={option.Text_t} value={option.Value_v} />
           ))}
         </Picker>
-      </View>
+      </View> */}
+      <IOSPicker
+        selectedValue={formData.orderReason}
+        onValueChange={(value) =>
+          setFormData({ ...formData, orderReason: value })
+        }
+        data={[
+          { label: "Select Order Reason", value: "" }, // Placeholder
+          ...(reason?.map((option) => ({
+            label: option.Text_t,
+            value: option.Value_v,
+          })) || []),
+        ]}
+        placeholder="Select Order Reason"
+        style={styles.picker}
+      />
+
       {!!errors.orderReason && (
         <Text style={styles.errorText}>{errors.orderReason}</Text>
       )}
@@ -233,25 +325,6 @@ const date = new Date()
         value={formData.bundleRemarks}
         onChangeText={(text) =>
           setFormData({ ...formData, bundleRemarks: text })
-        }
-        theme={{
-          roundness: 11,
-          colors: {
-            ...DefaultTheme.colors,
-            primary: PrimaryColor,
-            outline: "#00000020",
-          },
-        }}
-      />
-
-      {/* Order Remarks */}
-      <TextInput
-        label="Order Remarks"
-        mode="outlined"
-        style={styles.input}
-        value={formData.orderRemarks}
-        onChangeText={(text) =>
-          setFormData({ ...formData, orderRemarks: text })
         }
         theme={{
           roundness: 11,

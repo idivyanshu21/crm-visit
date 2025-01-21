@@ -7,6 +7,7 @@ import useSessionDetails from '../../Contexts/sessionDetails';
 import axios from 'axios';
 import { Checkbox } from 'react-native-paper';
 import Loader from '../Loader';
+import IOSPicker from '../IOSPicker';
 
 const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData, setFormData, classValue, setClassValue, selectedLevels, setSelectedLevels, series, setSeries, schoolId, tableData, setTableData }) => {
     const [title, setTitle] = useState("Title in Series");
@@ -121,7 +122,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
 
     useEffect(() => {
         fetchSeriesData()
-    }, [formData.selectedSubject])
+    }, [formData.selectedSubject,classValue])
 
     useEffect(() => {
         loadBookType()
@@ -132,7 +133,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetBroadSubjectInExecutiveWithSeriesAndTitle",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -168,11 +169,11 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
         }
     };
     const fetchSeriesData = async () => {
-        console.log("executed")
+        console.log(classValue)
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: title === "Title in Series" ? "GetMasterSeries" : "GetMasterTitle",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -251,6 +252,22 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
         }
     };
     const addtolist = async () => {
+        if (!formData.selectedSeries) {
+            alert('Please Select Series')
+            return
+        }
+        if (!formData.quantity) {
+            alert('Please fill quantity')
+            return
+        }
+        if (formData.quantity && formData.quantity <= 0) {
+            alert('Quantity cannot be zero or smaller.')
+            return
+        }
+        if (formData.discount && formData.discount < 0) {
+            alert('Discount cannot be smaller than zero.')
+            return
+        }
         setLoading(true)
         try {
             // const concatenatedBookCodes = getConcatenatedBookCodes(allBookData);
@@ -303,7 +320,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                     Discount: formData.discount,
                     SeriesID: formData.selectedSeries
                 }));
-                setTableData(formattedData);
+                setTableData((prev) => [...prev, ...formattedData]);
             } else {
                 console.error("Unexpected data format:", data);
             }
@@ -412,7 +429,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
             )}
             {orderType === "New Order" && <View style={styles.dropdownContainer}>
                 <Text style={[styles.label, { marginTop: 10 }]}>Broad Subject</Text>
-                <View style={[globalStyles.input, { borderRadius: 12, marginTop: 10, padding: 0, height: 45, marginBottom: 10 }]}>
+                {/* <View style={[globalStyles.input, { borderRadius: 12, marginTop: 10, padding: 0, height: 45, marginBottom: 10 }]}>
                     <Picker
                         selectedValue={formData.selectedSubject}
                         onValueChange={(itemValue) => {
@@ -425,12 +442,26 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                             <Picker.Item key={sub} label={sub.Text_t} value={sub.Value_v} />
                         ))}
                     </Picker>
-                </View>
+                </View> */}
+                {subject[0]?.Text_t && <IOSPicker
+                    selectedValue={formData.selectedSubject}
+                    onValueChange={(itemValue) => handleInputChange("selectedSubject", itemValue)}
+                    data={[
+                        { label: "Select a subject", value: "" }, // Placeholder
+                        ...(subject?.map((sub) => ({
+                            label: sub.Text_t,
+                            value: sub.Value_v,
+                        })) || []),
+                    ]}
+                    placeholder="Select a subject"
+                    style={[styles.picker, { marginTop: 6 }]}
+                />}
+
             </View>}
-            {formData.selectedSubject !== '' && (
+            {formData.selectedSubject !== '' && orderType === "New Order" && (
                 <View style={styles.dropdownContainer}>
                     <Text style={styles.label}>{title === "Title in Series" ? "Series" : "Title"}</Text>
-                    <View style={[globalStyles.input, { borderRadius: 12, marginTop: 10, padding: 0, height: 45 }]}>
+                    {/* <View style={[globalStyles.input, { borderRadius: 12, marginTop: 10, padding: 0, height: 45 }]}>
                         <Picker
                             selectedValue={formData.selectedSeries}
                             onValueChange={(itemValue) => handleInputChange('selectedSeries', itemValue)}
@@ -442,7 +473,24 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                                 <Picker.Item key={series} label={series.Text_t} value={series.Value_v} />
                             ))}
                         </Picker>
-                    </View>
+                    </View> */}
+                    <IOSPicker
+                        selectedValue={formData.selectedSeries}
+                        onValueChange={(itemValue) => handleInputChange("selectedSeries", itemValue)}
+                        data={[
+                            {
+                                label: title === "Title in Series" ? "Select a series" : "Select a Title",
+                                value: "",
+                            }, // Placeholder
+                            ...(series?.map((item) => ({
+                                label: item.Text_t,
+                                value: item.Value_v,
+                            })) || []),
+                        ]}
+                        placeholder={title === "Title in Series" ? "Select a series" : "Select a Title"}
+                        style={[styles.picker, { marginTop: 6 }]}
+                    />
+
                 </View>
             )}
             {orderType === "New Order" && <View style={{ marginVertical: 10 }}>
@@ -452,17 +500,24 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                     keyboardType="numeric"
                     placeholder="Enter quantity"
                     value={formData.quantity || ''}
-                    onChangeText={(value) => handleInputChange('quantity', value)}
+                    onChangeText={(value) => {
+                        const integerValue = value.replace(/[^0-9]/g, '');
+                        handleInputChange('quantity', integerValue)
+                    }}
                 />
             </View>}
             {orderType === "New Order" && <View style={{ marginVertical: 10 }}>
-                <Text style={styles.label}>Discount:</Text>
+                <Text style={styles.label}>Add. Discount:</Text>
                 <TextInput
                     style={[globalStyles.input, { borderRadius: 12, marginTop: 10 }]}
                     keyboardType="numeric"
                     placeholder="Enter discount"
                     value={formData.discount || ''}
-                    onChangeText={(value) => handleInputChange('discount', value)}
+                    onChangeText={(value) => {
+                        const positiveDecimalValue = value.replace(/[^0-9.]/g, '') // Remove non-digit and non-period characters
+                            .replace(/(\..*?)\./g, '$1'); // Allow only one decimal point
+                        handleInputChange('discount', positiveDecimalValue)
+                    }}
                 />
             </View>}
             {orderType === "New Order" &&
@@ -495,7 +550,10 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                                             style={styles.input}
                                             keyboardType="numeric"
                                             value={String(item.Quantity)}
-                                            onChangeText={(text) => handleQuantityChange(index, text)}
+                                            onChangeText={(text) => {
+                                                const integerValue = text.replace(/[^0-9]/g, '');
+                                                handleQuantityChange(index, integerValue)
+                                            }}
                                         />
                                     </View>
 
@@ -506,7 +564,10 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                                             style={styles.input}
                                             keyboardType="numeric"
                                             value={String(item.Discount)}
-                                            onChangeText={(text) => handleDiscountChange(index, text)}
+                                            onChangeText={(text) => {
+                                                const positiveDecimalValue = text.replace(/[^0-9.]/g, '').replace(/(\..*?)\./g, '$1'); // Remove non-digit and non-period characters
+                                                handleDiscountChange(index, positiveDecimalValue)
+                                            }}
                                         />
                                     </View>
 
@@ -555,7 +616,10 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                                         keyboardType="numeric"
                                         value={item.quantity.toString()}
                                         editable={item.selected}
-                                        onChangeText={(value) => handleInputChangeCards(index, "quantity", value)}
+                                        onChangeText={(value) => {
+                                            const integerValue = value.replace(/[^0-9]/g, '');
+                                            handleInputChangeCards(index, "quantity", integerValue)
+                                        }}
                                     />
                                 </View>
                                 <Text style={[styles.label, { marginTop: 5 }]}>Standard Discount (%): {item.StdDisc}</Text>
@@ -566,9 +630,11 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                                         keyboardType="numeric"
                                         value={item.additionalDiscount.toString()}
                                         editable={item.selected}
-                                        onChangeText={(value) =>
-                                            handleInputChangeCards(index, "additionalDiscount", value)
-                                        }
+                                        onChangeText={(value) => {
+                                            const positiveDecimalValue = value.replace(/[^0-9.]/g, '') // Remove non-digit and non-period characters
+                                                .replace(/(\..*?)\./g, '$1'); // Allow only one decimal point
+                                            handleInputChangeCards(index, "additionalDiscount", positiveDecimalValue)
+                                        }}
                                     />
                                 </View>
                                 <Text style={[styles.label, { marginTop: 10 }]}>Unit 25-26: {item.Qty25_26 || 0}</Text>

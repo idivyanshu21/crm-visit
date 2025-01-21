@@ -18,6 +18,7 @@ import axios from "axios";
 import TitlesSales from "../../Components/Titles/TitlesSales";
 import useSessionDetails from "../../Contexts/sessionDetails";
 import Loader from "../../Components/Loader";
+import IOSPicker from "../../Components/IOSPicker";
 // import axios from "axios";
 const SalesOrderScreen = () => {
     const [selectedOption, setSelectedOption] = useState("School");
@@ -39,7 +40,7 @@ const SalesOrderScreen = () => {
     const [academicSession, setAcademicSession] = useState();
     const [classValue, setClassValue] = useState()
     const [selectedLevels, setSelectedLevels] = useState([]);
-    const [loading, setLoading] = useState()
+    const [loading, setLoading] = useState(false)
     const [billTo, setBillTo] = useState()
     const [billingAddress, setBillingAddress] = useState()
     const [shipTo, setShipTo] = useState()
@@ -49,7 +50,10 @@ const SalesOrderScreen = () => {
     const [ts, setTs] = useState()
     const [tradeSchoolId, setTradeSchoolId] = useState()
     const [tradeSchoolData, setTradeSchoolData] = useState()
-    const [initialData,setInitialData]=useState([])
+    const [initialData, setInitialData] = useState([])
+    const [dropdownOptions, setDropdownOptions] = useState()
+    const [show, setShow] = useState(true)
+    const [tabId, setTabId] = useState('')
     const [formData, setFormData] = useState({
         executive: "",
         academicSession: 14,
@@ -76,8 +80,9 @@ const SalesOrderScreen = () => {
 
     const fetchData = async () => {
         setLoading(true)
+        setShow(false)
         try {
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetAllTypeCustomerWithSearch",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -106,6 +111,7 @@ const SalesOrderScreen = () => {
 
             // Set the state with the fetched data
             setOrderData(data);
+            setShow(true)
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -116,7 +122,7 @@ const SalesOrderScreen = () => {
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetAllTypeCustomerWithSearch",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -152,7 +158,7 @@ const SalesOrderScreen = () => {
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetExecutiveAndSubordinates",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -188,7 +194,7 @@ const SalesOrderScreen = () => {
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetAcademicSession",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -260,7 +266,7 @@ const SalesOrderScreen = () => {
         try {
             setLoading(true)
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_FindCommonDataForEdit";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_FindCommonDataForEdit";
             const params = {
                 ActionType: selectedOption === 'School' ? "GetSchoolDetails" : selectedOption === 'Trade' ? "GetTradeDetails" : "",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -326,10 +332,45 @@ const SalesOrderScreen = () => {
             setLoading(false);
         }
     }
+    function generateRandom10DigitNumber() {
+        return (Math.floor(1000000000 + Math.random() * 9000000000)).toString();
+    }
     const OnSubmit = async () => {
+        if (!schoolId) {
+            alert("Please select a School/Trade/Govt. Dept.")
+            return
+        }
+        if (!formData.academicSession) {
+            alert("Please select Academic Year")
+            return
+        }
+        if (!billsTo) {
+            alert("Please select Billing Option")
+            return
+        }
+        if (!billTo && !billingAddress) {
+            alert("No Billing Customer")
+            return
+        }
+        if (!shipsTo) {
+            alert("Please select Shipping Option")
+            return
+        }
+        if (!shipTo && !shippingAddress) {
+            alert("No Shipping Customer")
+            return
+        }
+        if (!mappedData || mappedData.length === 0) {
+            alert("Titles are missing.")
+            return
+        }
+        if (!formData.poNumber) {
+            alert("Please provide PO Number.")
+            return
+        }
         setLoading(true)
         try {
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_InsertOrderEntry";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_InsertOrderEntry";
             const body = {
                 "headerData": [
                     {
@@ -348,9 +389,9 @@ const SalesOrderScreen = () => {
                         "BillTo": billTo,
                         "BillingAddress": billingAddress,
                         "PONumber": Number(formData.poNumber),
-                        "ReqDeliveryDate": formData.deliveryDate ? formData.deliveryDate.toISOString(): null,
+                        "ReqDeliveryDate": formData.deliveryDate ? formData.deliveryDate.toISOString() : null,
                         "OrderReason": formData.orderReason,
-                        "BundleRemark": "Bundle Remarks",
+                        "BundleRemark": formData.bundleRemarks,
                         "AcademicYear": formData.academicSession,
                         "BillingToType": selectedOption === 'Govt. Dept.' ? 'Govt. Dept.' : 'Trade',
                         "ShippingToType": shipsTo
@@ -358,7 +399,7 @@ const SalesOrderScreen = () => {
                 ],
                 "itemData": mappedData,
                 "TransactionID": 0,
-                "TabID": "5889758394368713",
+                "TabID": tabId,
                 "OrderType": orderType === "New Order" ? "New" : "Repeat",
                 "iCompanyID": sessionDetails.iCompanyID,
                 "UserID": sessionDetails.UserID
@@ -395,6 +436,7 @@ const SalesOrderScreen = () => {
             })
             setTableData([])
             setMappedData([])
+            setTabId(generateRandom10DigitNumber())
 
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -407,10 +449,10 @@ const SalesOrderScreen = () => {
             setLoading(true)
             console.log("+++++++++++++")
             // Construct the URL with query parameters
-            const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetCommonDataForGrid";
+            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataForGrid";
             const params = {
                 ActionType: "RepeatOrderInEntry",
-                Col1: 10188,
+                Col1: schoolId,
                 Col2: "School",
                 Col3: "",
                 Col4: "",
@@ -436,10 +478,16 @@ const SalesOrderScreen = () => {
         }
     }
 
-    useEffect(()=>{
-        if(orderType==="Repeat Order"){
-        fetchRepeatOrderDetails()}
-    },[schoolId,orderType])
+    useEffect(() => {
+        if (orderType === "Repeat Order") {
+            fetchRepeatOrderDetails()
+        }
+    }, [schoolId, orderType])
+
+    useEffect(() => {
+        const abc = generateRandom10DigitNumber()
+        setTabId(abc)
+    }, [])
 
     useEffect(() => {
         if (tableData && Array.isArray(tableData)) {
@@ -571,21 +619,23 @@ const SalesOrderScreen = () => {
         fetchCustomerSchoolDetails()
     }, [tradeSchoolId])
 
-    const repeatCardsMap=()=>{
-        const cardData =initialData?.map((item) => ({
+    const repeatCardsMap = () => {
+        const cardData = initialData?.map((item) => ({
             ...item,
             selected: false,
             quantity: item.Qty24_25,
             additionalDiscount: item.AddDisc24_25,
-          }))
-          setTableDataRepeat(cardData)
+        }))
+        setTableDataRepeat(cardData)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         repeatCardsMap()
-    },[initialData])
-
-    const dropdownOptions = orderData.map((item) => ({ id: item.Value_v, name: item.Text_t }))
+    }, [initialData])
+    useEffect(() => {
+        const options = orderData.map((item) => ({ id: item.Value_v, name: item.Text_t }))
+        setDropdownOptions(options)
+    }, [orderData])
     const dropdownOptionsTradeSchool = tradeToSchoolData?.map((item) => ({ id: item.Value_v, name: item.Text_t }))
     const ShippingOptions = ['School', 'Trade', 'Other Trade', 'Other Address']
 
@@ -595,9 +645,9 @@ const SalesOrderScreen = () => {
             content:
                 <>
                     <Text style={{ paddingBottom: 5, color: '#00000095' }}>Billing Details</Text>
-                    <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}>
+                    {/* <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}>
                         <Picker
-                            selectedValue={shipsTo}
+                            selectedValue={sTo}
                             onValueChange={(itemValue) => setBillsTo(itemValue)}
                             style={styles.picker}
                         >
@@ -607,13 +657,29 @@ const SalesOrderScreen = () => {
                             {selectedOption === "Govt. Dept." &&
                                 <Picker.Item label="Govt. Dept." color="#000000" value="Govt. Dept." />}
                         </Picker>
-                    </View>
+                    </View> */}
+                    <IOSPicker
+                        selectedValue={billsTo}
+                        onValueChange={(itemValue) => setBillsTo(itemValue)}
+                        data={[
+                            { label: "Select Bill To", value: "", color: "#00000070" },
+                            ...(selectedOption === "School" || selectedOption === "Trade"
+                                ? [{ label: "Trade", value: "Trade", color: "#000000" }]
+                                : []),
+                            ...(selectedOption === "Govt. Dept."
+                                ? [{ label: "Govt. Dept.", value: "Govt. Dept.", color: "#000000" }]
+                                : []),
+                        ]}
+                        placeholder="Select Bill To"
+                        itemStyle={{ color: "#000000" }} // Default color
+                    />
+
                     {selectedOption === 'Govt. Dept.' ? <Details /> : selectedOption === 'School' ? <>{billsTo && <Trade formData={formData} setFormData={setFormData} stateId={stateId} setStateId={setStateId} fetchCustomerDetails={searchBillto} />}</> : <></>}
                     {customer && selectedOption === 'School' && billsTo && <Details data={customer[0]} />}
                     {schoolData && selectedOption === 'Trade' && billsTo && <Details data={schoolData} />}
 
                     <Text style={{ paddingBottom: 5, color: '#00000095' }}>Shipping Details</Text>
-                    <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}>
+                    {/* <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}>
                         <Picker
                             selectedValue={shipsTo}
                             onValueChange={(itemValue) => setShipsTo(itemValue)}
@@ -625,7 +691,23 @@ const SalesOrderScreen = () => {
                                 <Picker.Item key={index} label={String(option)} value={option} />
                             ))}
                         </Picker>
-                    </View>
+                    </View> */}
+                    <IOSPicker
+                        selectedValue={shipsTo}
+                        onValueChange={(itemValue) => setShipsTo(itemValue)}
+                        data={[
+                            { label: "Select Ship To", value: "", color: "#aaa" }, // Placeholder
+                            ...ShippingOptions.map((option) => ({
+                                label: String(option),
+                                value: option,
+                                color: "#000", // Default color for options
+                            })),
+                        ]}
+                        placeholder="Select Ship To"
+                        placeholderColor="#aaa" // Placeholder color
+                        defaultColor="#000" // Default color for options
+                    />
+
                     {selectedOption === 'School' && shipsTo !== "" &&
                         (
                             shipsTo === 'Other Address' ? <AddressForm /> :
@@ -705,19 +787,19 @@ const SalesOrderScreen = () => {
                 schoolId={schoolId}
                 tableData={tableData}
                 setTableData={setTableData}
-                orderType={orderType} 
+                orderType={orderType}
                 tableDataRepeat={tableDataRepeat}
-                setTableDataRepeat={setTableDataRepeat}/>
+                setTableDataRepeat={setTableDataRepeat} />
         },
         {
             title: "Other Details",
-            content: <View style={{ height: "fit-content" }}><OrderDetailsForm formData={formData} setFormData={setFormData} /></View>,
+            content: <View style={{ height: "fit-content" }}><OrderDetailsForm formData={formData} setFormData={setFormData} tabID={tabId} /></View>,
         },
     ];
 
 
     return (<>
-    {loading && <Loader />}
+        {loading && <Loader />}
         <AnimatedHeader title='Order Entry'>
             <TouchableWithoutFeedback
                 onPress={() => {
@@ -758,7 +840,7 @@ const SalesOrderScreen = () => {
                         </View>
                     </View>
                     <View style={[styles.dropdownContainer, { top: 225, marginHorizontal: 15 }]}>
-                        <Dropdown
+                        {show && <Dropdown
                             rounded
                             id={(value) => {
                                 setSchoolId(value);
@@ -769,16 +851,16 @@ const SalesOrderScreen = () => {
                             onValueChange={(value) => {
                                 setSelectedDropdownValue(value); // Update selected value
                             }}
-                        />
+                        />}
                     </View>
                     <View style={styles.container}>
 
                         {/* Radio Buttons */}
-                        <View style={{backgroundColor:"white", width:"100%", borderRadius:15}}>
+                        <View style={{ backgroundColor: "white", width: "100%", borderRadius: 15 }}>
                             {/* <Text style={[globalStyles.heading, globalStyles.primaryText, { textAlign: 'center' }]}>Order Type</Text> */}
                             <View style={styles.radioContainer}>
-                            {/* ["New Order", "Repeat Order"] */}
-                                {["New Order","Repeat Order"].map((option) => (
+                                {/* ["New Order", "Repeat Order"] */}
+                                {["New Order", "Repeat Order"].map((option) => (
                                     <TouchableOpacity
                                         key={option}
                                         style={globalStyles.radioButton}
@@ -799,29 +881,24 @@ const SalesOrderScreen = () => {
                             </View>
                         </View>
                         <View style={globalStyles.step}>
-                            <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}>
-                                <Picker
-                                    selectedValue={formData.executive}
-                                    onValueChange={(value) => setFormData({ ...formData, executive: value })}
-                                    style={styles.picker}
-                                >
-                                    {executiveData && executiveData.map((executive) => (
-                                        <Picker.Item key={executive.Value_v} label={executive.Text_t} value={executive.Value_v} />
-                                    ))}
-
-                                </Picker>
-                            </View>
-                            <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}>
-                                <Picker
-                                    selectedValue={formData.academicSession}
-                                    onValueChange={(value) => setFormData({ ...formData, academicSession: value })}
-                                    style={styles.picker}
-                                >
-                                    <Picker.Item label="Select Academic Year" value="" />
-                                    {academicSession && academicSession.map((session) => (
-                                        <Picker.Item key={session.Value_v} label={session.Text_t} value={session.Value_v} />
-                                    ))}
-                                </Picker></View>
+                            {/* <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}> */}
+                            <IOSPicker
+                                selectedValue={formData.executive}
+                                onValueChange={(value) => setFormData({ ...formData, executive: value })}
+                                data={executiveData} // No mapping required
+                                placeholder="Select an Executive"
+                            />
+                            {/* </View> */}
+                            {/* <View style={[globalStyles.pickerContainer, { marginBottom: 20 }]}> */}
+                            <IOSPicker
+                                selectedValue={formData.academicSession}
+                                onValueChange={(value) =>
+                                    setFormData({ ...formData, academicSession: value })
+                                }
+                                data={academicSession} // No mapping required
+                                placeholder="Select Academic Year"
+                            />
+                            {/* </View> */}
                         </View>
                         <TabComponent tabs={tabOptions} defaultTab="Billing/Shipping" />
                         <TouchableOpacity style={styles.submitButton} onPress={OnSubmit} >

@@ -4,17 +4,19 @@ import SearchableDropDown from "react-native-searchable-dropdown";
 import { useEffect, useState } from "react";
 import globalStyles from "../../globalCSS";
 import axios from "axios";
+import Loader from "../Loader";
 
 const Trade = ({ formData, setFormData, stateId, setStateId, fetchCustomerDetails }) => {
     const [state, setState] = useState("")
-    const StateData = States.map((item) => ({ id: item.Value_v, name: item.Text_t }))
+    const [loading,setLoading]=useState(false)
+    const StateData = state && state?.map((item) => ({ id: item.StateID, name: item.StateName }))
         const fetchState = async () => {
-            console.log("++++++++++++++++++++++++++++++++++++++++")
+            setLoading(true)
             try {
                 // Construct the URL with query parameters
-                const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_GetState";
+                const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetState";
                 const params = {
-                    country:""
+                   
                 };
                 const url = `${baseUrl}`;
                 const response = await axios.post(url, null, {
@@ -24,6 +26,7 @@ const Trade = ({ formData, setFormData, stateId, setStateId, fetchCustomerDetail
                     },
                 });
                 const data = response.data;
+                setState(data)
                 console.log("______++++_____>>>>",data)
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -36,6 +39,7 @@ const Trade = ({ formData, setFormData, stateId, setStateId, fetchCustomerDetail
         },[])
     return (
         <>
+        {loading && <Loader />}
             <Text style={{ paddingBottom: 5, color: '#00000095' }}>State*</Text>
             <View style={[globalStyles.dropdownContainer, { minWidth: '100%', marginBottom: 10 }]}>
                 <SearchableDropDown

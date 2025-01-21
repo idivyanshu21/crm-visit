@@ -544,23 +544,24 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
       {/* Dropdowns and Inputs */}
       <View style={styles.dropdownContainer}>
         <Text style={[styles.label, { marginTop: 10 }]}>Broad Subject</Text>
-        
-        <View style={[styles.pickerContainer,]}>
-          <Picker
-            selectedValue={formData.selectedSubject}
-            onValueChange={(itemValue) => {
-              handleInputChange('selectedSubject', itemValue);
-              handleInputChange('selectedSeries', '');
-            }}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select a subject" value="" />
-            {boardSubject?.map((subject) => (
-              <Picker.Item key={subject} label={subject.Text_t} value={subject.Value_v} />
-            ))}
-          </Picker>
-        </View>
-        
+
+        <IOSPicker
+          selectedValue={formData.selectedSubject}
+          onValueChange={(itemValue) => {
+            handleInputChange('selectedSubject', itemValue);
+            handleInputChange('selectedSeries', '');
+          }}
+          data={[
+            { label: "Select a subject", value: "", color: '#00000070' },
+            ...(boardSubject?.map((subject) => ({
+              label: subject.Text_t, value: subject.Value_v
+            })) || [])
+          ]}
+          placeholder="Select a subject"
+          style={{ marginBottom: -10 }}
+        />
+
+
         {/* <IOSPicker
         data={[
           { label: "Select a subject", value: "" },
@@ -581,19 +582,19 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
       {formData.selectedSubject && (
         <View style={styles.dropdownContainer}>
           <Text style={styles.label}>{title === "Title in Series" ? "Series" : "Title"}</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={formData.selectedSeries}
-              onValueChange={(itemValue) => handleInputChange('selectedSeries', itemValue)}
-              style={styles.picker}
-            >
-              <Picker.Item label={title === "Title in Series" ? "Select a series" : "Select a Title"} value="" />
-              {/* {series && console.log(series)} */}
-              {series && series.map((series) => (
-                <Picker.Item key={series} label={series.Text_t} value={series.Value_v} />
-              ))}
-            </Picker>
-          </View>
+          <IOSPicker
+            selectedValue={formData.selectedSeries}
+            onValueChange={(itemValue) => handleInputChange('selectedSeries', itemValue)}
+            data={[
+              { label: title === "Title in Series" ? "Select a series" : "Select a Title", value: "",color:'#00000070'  },
+              ...(series?.map((item) => ({
+                label: item.Text_t,
+                value: item.Value_v
+              })) || [])
+            ]}
+            placeholder={title === "Title in Series" ? "Select a series" : "Select a Title"}
+            style={styles.picker}
+          />
         </View>
       )}
 
@@ -759,9 +760,9 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
                   : item.toggles.join(', ')}
               </Text>
               <Text style={styles.cardText}>Invoice Year: {invoiceYear}</Text>
-              <Text style={styles.cardText}>Invoice Month: {months[invoiceMonth-1]}</Text>
+              <Text style={styles.cardText}>Invoice Month: {months[invoiceMonth - 1]}</Text>
               <Text style={styles.cardText}>Sample Year: {sampleYear}</Text>
-              <Text style={styles.cardText}>Sample Month: {months[sampleMonth-1]}</Text>
+              <Text style={styles.cardText}>Sample Month: {months[sampleMonth - 1]}</Text>
               <TouchableOpacity
                 onPress={() => handleDeleteItem(item.id)}
                 style={styles.deleteButton}
@@ -789,24 +790,21 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
                 <Text style={styles.cardText}>
                   <Text style={styles.boldText}>Pipeline Value:</Text> {row.netAmount}
                 </Text>
-                <View style={[styles.pickerContainer, { marginBottom: 10, backgroundColor: '#ffff' }]}>
-                  <Picker
-                    selectedValue={row.competitorPublisher}
-                    style={styles.picker}
-                    onValueChange={(value) =>
-                      handleCompetitorPublisherChange(row.id.split('-')[0], value) // Pass seriesId
-                    }
-                  >
-                    <Picker.Item label="Select Competitor Publisher" value="" />
-                    {competitorPublisher.map((publisher) => (
-                      <Picker.Item
-                        key={publisher.Value_v}
-                        label={publisher.Text_t}
-                        value={publisher.Value_v}
-                      />
-                    ))}
-                  </Picker>
-                </View>
+                <IOSPicker
+                  selectedValue={row.competitorPublisher}
+                  onValueChange={(value) =>
+                    handleCompetitorPublisherChange(row.id.split('-')[0], value) // Pass seriesId
+                  }
+                  data={[
+                    { label: "Select Competitor Publisher", value: "", color: '#00000070' },
+                    ...(competitorPublisher?.map((publisher) => ({
+                      label: publisher.Text_t,
+                      value: publisher.Value_v
+                    })) || [])
+                  ]}
+                  placeholder="Select Competitor Publisher"
+                  style={{ marginTop: 10 }}
+                />
                 <TextInput
                   placeholder="Competitor Series"
                   style={styles.input}
@@ -823,24 +821,22 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
                     handleCompetitorSeriesChange(row.id.split('-')[0], 'Title', value)
                   }
                 />
-                <View style={[styles.pickerContainer, { marginBottom: 10, backgroundColor: '#ffff' }]}>
-                  <Picker
-                    selectedValue={row.AdoptionChances}
-                    style={styles.picker}
-                    onValueChange={(value) =>
-                      handleAdoptionChancesChange(row.id, value) // Pass seriesId
-                    }
-                  >
-                    <Picker.Item label="Select Adoption Chances" value="" />
-                    {adoptionChances.map((chance) => (
-                      <Picker.Item
-                        key={chance.Value_v}
-                        label={chance.Text_t}
-                        value={chance.Value_v}
-                      />
-                    ))}
-                  </Picker>
-                </View>
+                <IOSPicker
+                  selectedValue={row.AdoptionChances}
+                  onValueChange={(value) =>
+                    handleAdoptionChancesChange(row.id, value) // Pass seriesId
+                  }
+                  data={[
+                    { label: "Select Adoption Chances", value: "",color:'#00000070'  },
+                    ...(adoptionChances?.map((chance) => ({
+                      label: chance.Text_t,
+                      value: chance.Value_v
+                    })) || [])
+                  ]}
+                  placeholder="Select Adoption Chances"
+                
+                />
+
                 <TextInput
                   placeholder="Remark"
                   style={styles.input}

@@ -9,6 +9,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import axios from 'axios';
 import useSessionDetails from '../../Contexts/sessionDetails';
 import Loader from '../Loader';
+import IOSPicker from '../IOSPicker';
 
 const Titles = ({ upload = false, salesPlan, samplingRequest = false, schoolCode, schoolData,
     formData,
@@ -36,7 +37,7 @@ const Titles = ({ upload = false, salesPlan, samplingRequest = false, schoolCode
     setShowTable,
     totalNetAmount,
     OnSubmit
-    }) => {
+}) => {
     const sessionDetails = useSessionDetails()
     const [title, setTitle] = useState("Title in Series");
     const titleOptions = ['Title in Series', 'Title not in Series'];
@@ -45,7 +46,7 @@ const Titles = ({ upload = false, salesPlan, samplingRequest = false, schoolCode
     const [shipmentMode, setShipmentMode] = useState('')
     const [feedback, setFeedback] = useState('')
     const [subject, setsubject] = useState('')
-    const [loading,setLoading]=useState(false)
+    const [loading, setLoading] = useState(false)
     const months = [
         "January",
         "February",
@@ -192,52 +193,54 @@ const Titles = ({ upload = false, salesPlan, samplingRequest = false, schoolCode
     const nextYear = currentYear + 1;
     return (
         <View style={{ width: '95%' }}>
-            {loading && <Loader/>}
+            {loading && <Loader />}
             {salesPlan && <>
-                <View style={styles.formGroup}>
-                    <Picker
-                        selectedValue={invoiceYear}
-                        style={styles.dropdown}
-                        onValueChange={(itemValue) => setInvoiceYear(itemValue)}>
-                        <Picker.Item label="Invoice Year" value="" />
-                        <Picker.Item label={currentYear} value={currentYear} />
-                        <Picker.Item label={nextYear} value={nextYear} />
-                    </Picker>
-                </View>
-                <View style={styles.formGroup}>
-                    <Picker
-                        selectedValue={invoiceMonth}
-                        style={styles.dropdown}
-                        onValueChange={(itemValue) => setInvoiceMonth(itemValue)}>
-                        <Picker.Item label="Invoice Month" value="" />
-                        {months.map((month, index) => (
-                            <Picker.Item key={index} label={month} value={index + 1} />
-                        ))}
-                    </Picker>
-                </View>
+                <IOSPicker
+                    selectedValue={invoiceYear}
+                    onValueChange={(itemValue) => setInvoiceYear(itemValue)}
+                    data={[
+                        { label: "Invoice Year", value: "", color:'#00000070'  },
+                        { label: currentYear, value: currentYear },
+                        { label: nextYear, value: nextYear },
+                    ]}
+                    placeholder="Invoice Year"
+                    style={styles.dropdown}
+                />
 
-                <View style={styles.formGroup}>
-                    <Picker
-                        selectedValue={sampleYear}
-                        style={styles.dropdown}
-                        onValueChange={(itemValue) => setSampleYear(itemValue)}>
-                        <Picker.Item label="Sample Year" value="" />
-                        <Picker.Item label={currentYear} value={currentYear} />
-                        <Picker.Item label={nextYear} value={nextYear} />
-                    </Picker>
-                </View>
+                <IOSPicker
+                    selectedValue={invoiceMonth}
+                    onValueChange={(itemValue) => setInvoiceMonth(itemValue)}
+                    data={[
+                        { label: "Invoice Month", value: "",color:'#00000070'  },
+                        ...months.map((month, index) => ({ label: month, value: index + 1 }))
+                    ]}
+                    placeholder="Invoice Month"
+                    style={styles.dropdown}
+                />
 
-                <View style={styles.formGroup}>
-                    <Picker
-                        selectedValue={sampleMonth}
-                        style={styles.dropdown}
-                        onValueChange={(itemValue) => setSampleMonth(itemValue)}>
-                        <Picker.Item label="Sample Month" value="" />
-                        {months.map((month, index) => (
-                            <Picker.Item key={index} label={month} value={index + 1} />
-                        ))}
-                    </Picker>
-                </View>
+                <IOSPicker
+                    selectedValue={sampleYear}
+                    onValueChange={(itemValue) => setSampleYear(itemValue)}
+                    data={[
+                        { label: "Sample Year", value: "",color:'#00000070'  },
+                        { label: currentYear, value: currentYear },
+                        { label: nextYear, value: nextYear },
+                    ]}
+                    placeholder="Sample Year"
+                    style={styles.dropdown}
+                />
+
+                <IOSPicker
+                    selectedValue={sampleMonth}
+                    onValueChange={(itemValue) => setSampleMonth(itemValue)}
+                    data={[
+                        { label: "Sample Month", value: "", color:'#00000070'  },
+                        ...months.map((month, index) => ({ label: month, value: index + 1 }))
+                    ]}
+                    placeholder="Sample Month"
+                    style={[styles.dropdown,{marginBottom:20}]}
+                />
+
             </>}
             {samplingRequest && <>
                 <View style={styles.formGroup}>
@@ -348,30 +351,30 @@ const Titles = ({ upload = false, salesPlan, samplingRequest = false, schoolCode
                     </View>
                 </View>
             )}
-                <>{subject &&
-                    <OrderProcess
-                        samplingRequest={samplingRequest}
-                        boardSubject={subject}
-                        title={title}
-                        classValue={classValue}
-                        classType={classType}
-                        schoolDetails={schoolData}
-                        invoiceMonth={invoiceMonth}
-                        invoiceYear={invoiceYear}
-                        sampleMonth={sampleMonth}
-                        sampleYear={sampleYear}
-                        formData={formData}
-                        setFormData={setFormData}
-                        tableData={tableData}
-                        setTableData={setTableData}
-                        orderList={orderList}
-                        setOrderList={setOrderList}
-                        showTable={showTable}
-                        setShowTable={setShowTable}
-                        months={months}
-                        totalNetAmount={totalNetAmount}
-                    />}
-                </>
+            <>{subject &&
+                <OrderProcess
+                    samplingRequest={samplingRequest}
+                    boardSubject={subject}
+                    title={title}
+                    classValue={classValue}
+                    classType={classType}
+                    schoolDetails={schoolData}
+                    invoiceMonth={invoiceMonth}
+                    invoiceYear={invoiceYear}
+                    sampleMonth={sampleMonth}
+                    sampleYear={sampleYear}
+                    formData={formData}
+                    setFormData={setFormData}
+                    tableData={tableData}
+                    setTableData={setTableData}
+                    orderList={orderList}
+                    setOrderList={setOrderList}
+                    showTable={showTable}
+                    setShowTable={setShowTable}
+                    months={months}
+                    totalNetAmount={totalNetAmount}
+                />}
+            </>
 
             <TouchableOpacity onPress={OnSubmit} style={styles.submitButton}>
                 <Text style={styles.submitText}>Submit</Text>

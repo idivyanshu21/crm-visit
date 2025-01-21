@@ -254,7 +254,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId, isD
           )}
 
           {/* Purpose Picker */}
-          {Platform.OS === 'android' &&
+          {/* {Platform.OS === 'android' &&
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.purpose}
@@ -268,130 +268,84 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId, isD
                 <Picker.Item label="Product Promotion" value={2} />
                 <Picker.Item label="Product Demo" value={3} />
               </Picker>
-            </View>}
-          {Platform.OS === 'ios' &&
-            <IOSPicker
-              selectedValue={formData.purpose}
-              onValueChange={(value) =>
-                setFormData({ ...formData, purpose: value })
-              }
-              style={styles.picker}
-            >
-              <IOSPicker.Item label="Visited Purpose*" value="" />
-              <IOSPicker.Item label="Product Orientation" value={1} />
-              <IOSPicker.Item label="Product Promotion" value={2} />
-              <IOSPicker.Item label="Product Demo" value={3} />
-            </IOSPicker>}
+            </View>} */}
+
+          <IOSPicker
+            selectedValue={formData.purpose}
+            onValueChange={(value) =>
+              setFormData({ ...formData, purpose: value })
+            }
+            data={[
+              { label: "Visited Purpose*", value: "", color: "#00000070" }, // Placeholder
+              { label: "Product Orientation", value: 1 },
+              { label: "Product Promotion", value: 2 },
+              { label: "Product Demo", value: 3 },
+            ]}
+            placeholder="Visited Purpose*"
+            style={styles.picker}
+          />
+
 
           {!!errors.purpose && (
             <Text style={styles.errorText}>{errors.purpose}</Text>
           )}
           {formData.purpose === 3 && (
             <>
-              {Platform.OS === 'android' &&
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.demoBy}
-                    onValueChange={(itemValue) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        demoBy: itemValue
-                      }));
-                    }}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Demo By*" value="" />
-                    <Picker.Item label="Demo By Self" value="DemoBySelf" />
-                    <Picker.Item label="Demo By EPM" value="DemoByEPM" />
-                  </Picker>
-                </View>}
+              <IOSPicker
+                selectedValue={formData.demoBy}
+                onValueChange={(itemValue) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    demoBy: itemValue,
+                  }));
+                }}
+                data={[
+                  { label: "Demo By*", value: "" }, // Placeholder
+                  { label: "Demo By Self", value: "DemoBySelf" },
+                  { label: "Demo By EPM", value: "DemoByEPM" },
+                ]}
+                placeholder="Demo By*"
+                style={styles.picker}
+              />
 
-              {Platform.OS === 'ios' &&
-                <IOSPicker
-                  selectedValue={formData.demoBy}
-                  onValueChange={(itemValue) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      demoBy: itemValue
-                    }));
-                  }}
-                  style={styles.picker}
-                >
-                  <IOSPicker.Item label="Demo By*" value="" />
-                  <IOSPicker.Item label="Demo By Self" value="DemoBySelf" />
-                  <IOSPicker.Item label="Demo By EPM" value="DemoByEPM" />
-                </IOSPicker>}
-
-              {Platform.OS === 'android' &&
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.demoType}
-                    onValueChange={(itemValue) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        demoType: itemValue
-                      }));
-                    }}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Demo Type*" value="" />
-                    <Picker.Item label="Altura Demo" value="Altura Demo" />
-                    <Picker.Item label="Other Titles" value="Other Titles" />
-                  </Picker>
-                </View>}
-              {Platform.OS === 'ios' &&
-                <IOSPicker
-                  selectedValue={formData.demoType}
-                  onValueChange={(itemValue) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      demoType: itemValue
-                    }));
-                  }}
-                  style={styles.picker}
-                >
-                  <IOSPicker.Item label="Demo Type*" value="" />
-                  <IOSPicker.Item label="Altura Demo" value="Altura Demo" />
-                  <IOSPicker.Item label="Other Titles" value="Other Titles" />
-                </IOSPicker>}
+              <IOSPicker
+                selectedValue={formData.demoType}
+                onValueChange={(itemValue) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    demoType: itemValue,
+                  }));
+                }}
+                data={[
+                  { label: "Demo Type*", value: "" }, // Placeholder
+                  { label: "Altura Demo", value: "Altura Demo" },
+                  { label: "Other Titles", value: "Other Titles" },
+                ]}
+                placeholder="Demo Type*"
+                style={styles.picker}
+              />
             </>
           )}
 
           {(formData.purpose === 3 && formData.demoBy === "DemoByEPM") && (
-            Platform.OS === 'android' ?
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={formData.selectedEPM}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      selectedEPM: value,
-                    }))
-                  }
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Select EPM*" value="" />
-                  {epm?.map((executive) => (
-                    <Picker.Item key={executive.Value_v} label={executive.Text_t} value={executive.Value_v} />
-                  ))}
-                </Picker>
-              </View>
-              :
-              <IOSPicker
-                selectedValue={formData.selectedEPM}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    selectedEPM: value,
-                  }))
-                }
-                style={styles.picker}
-              >
-                <IOSPicker.Item label="Select EPM*" value="" />
-                {epm?.map((executive) => (
-                  <IOSPicker.Item label={executive.Text_t} value={executive.Value_v} />
-                ))}
-              </IOSPicker>
+            <IOSPicker
+              selectedValue={formData.selectedEPM}
+              onValueChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  selectedEPM: value,
+                }))
+              }
+              data={[
+                { label: "Select EPM*", value: "" }, // Placeholder
+                ...epm?.map((executive) => ({
+                  label: executive.Text_t,
+                  value: executive.Value_v,
+                })),
+              ]}
+              placeholder="Select EPM*"
+              style={styles.picker}
+            />
           )}
 
           {/* Date Picker - Entire Container Clickable */}
@@ -515,36 +469,21 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId, isD
               )}
 
               {/* Follow-Up Action */}
-              {Platform.OS === 'android' &&
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={formData.followUpAction}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, followUpAction: value })
-                    }
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Follow-Up Action" value="" />
-                    <Picker.Item label="Manager Visit" value={1} />
-                    <Picker.Item label="Calling" value={2} />
-                    <Picker.Item label="Sampling" value={3} />
-                  </Picker>
-                </View>
-              }
-              {Platform.OS === 'ios' &&
-                  <IOSPicker
-                    selectedValue={formData.followUpAction}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, followUpAction: value })
-                    }
-                    style={styles.picker}
-                  >
-                    <IOSPicker.Item label="Follow-Up Action" value="" />
-                    <IOSPicker.Item label="Manager Visit" value={1} />
-                    <IOSPicker.Item label="Calling" value={2} />
-                    <IOSPicker.Item label="Sampling" value={3} />
-                  </IOSPicker>
-              }
+              <IOSPicker
+                selectedValue={formData.followUpAction}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, followUpAction: value })
+                }
+                data={[
+                  { label: "Follow-Up Action", value: "" }, // Placeholder
+                  { label: "Manager Visit", value: 1 },
+                  { label: "Calling", value: 2 },
+                  { label: "Sampling", value: 3 },
+                ]}
+                placeholder="Follow-Up Action"
+                style={styles.picker}
+              />
+
               {/* Remark */}
               <TextInput
                 label="Remark*"
