@@ -12,12 +12,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import * as DocumentPicker from "expo-document-picker";
 import { MaterialIcons } from "@expo/vector-icons";
 import useSessionDetails from "../../Contexts/sessionDetails";
-import { PrimaryColor } from "../../globalCSS";
+import { PrimaryColor, PrimaryColorLight2, PrimaryColorLight3 } from "../../globalCSS";
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
 import IOSPicker from "../IOSPicker";
 
-const OrderDetailsForm = ({ formData, setFormData,tabID }) => {
+const OrderDetailsForm = ({ formData, setFormData, tabID, isFileUploaded,setIsFileUploaded }) => {
   const [file, setFile] = useState('')
   const [fileDetails,setFileDetails]=useState({})
   const [errors, setErrors] = useState({});
@@ -108,17 +108,16 @@ const OrderDetailsForm = ({ formData, setFormData,tabID }) => {
   };
   useEffect(() => {
     if (file && fileDetails) {
-      console.log("+++++++++++++++++++++++++++++++++++++>>>>>",file)
       const uploadFile = async () => {
         try {
-          const baseUrl = "https://visitcrm.cloudpub.in/api/CRM_UploadFiles";
+          const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_UploadFiles";
           const body = {
             UserID: sessionDetails.UserID,
             iCompanyID: sessionDetails.iCompanyID,
             TabID: Number(tabID),
             FileName: fileDetails.name,
             FileExtension: ".msg",
-            FileBase64: file.toString(),
+            FileBase64: file,
           };
   
           const response = await axios.post(baseUrl, body, {// Send the params as query parameters
@@ -129,8 +128,10 @@ const OrderDetailsForm = ({ formData, setFormData,tabID }) => {
           
           const data = response.data;
           console.log(":", data);
-          if(data[0].Result!=='File Not uploaded'){
-          alert("File uploaded Successfully!");}
+          if(data[0]?.Result){
+          alert(data[0]?.Result);
+          setIsFileUploaded(true)
+        }
         } catch (error) {
           console.error("Error uploading file:", error);
         }
@@ -157,9 +158,11 @@ const OrderDetailsForm = ({ formData, setFormData,tabID }) => {
         onPress={handleFileUpload}
       >
         <Text style={styles.uploadText}>
-          {formData.file ? "File Uploaded" : "+ Upload Order Copy"}
+          {formData.file ? "File Uploaded" : "+ Upload Order Copy *"}
         </Text>
       </TouchableOpacity>
+      
+      {fileDetails && <Text style={{marginBottom:10}}>{fileDetails.name}</Text>}
 
       <TextInput
         label="Order Remarks"
@@ -371,14 +374,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   uploadButton: {
-    marginBottom: 20,
+    marginBottom: 5,
     padding: 10,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 5,
+    backgroundColor: PrimaryColor,
+    borderRadius: 12,
     alignItems: "center",
   },
   uploadText: {
-    color: "#555",
+    color: "#f1f1f1",
   },
   button: {
     borderRadius: 10,

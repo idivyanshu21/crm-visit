@@ -95,12 +95,13 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
     };
     const handleDiscountChange = (index, newDiscount) => {
         const updatedData = [...tableData];
-        updatedData[index].Discount = parseFloat(newDiscount) || 0;
+        updatedData[index].Discount = newDiscount; // Store raw string
         updatedData[index].TotalNetAmount =
             updatedData[index].TotalAmount *
-            (1 - (Number(updatedData[index].Discount) + Number(updatedData[index].StandardDisc)) / 100);
+            (1 - (parseFloat(newDiscount || 0) + Number(updatedData[index].StandardDisc)) / 100);
         setTableData(updatedData);
     };
+    
     const handleDelete = (index) => {
         Alert.alert("Delete", "Are you sure you want to delete this item?", [
             { text: "Cancel", style: "cancel" },
@@ -563,9 +564,10 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                                         <TextInput
                                             style={styles.input}
                                             keyboardType="numeric"
-                                            value={String(item.Discount)}
+                                            value={item.Discount.toString()}
                                             onChangeText={(text) => {
-                                                const positiveDecimalValue = text.replace(/[^0-9.]/g, '').replace(/(\..*?)\./g, '$1'); // Remove non-digit and non-period characters
+                                                const positiveDecimalValue = text.replace(/[^0-9.]/g, '')
+                                                .replace(/(\..*?)\./g, '$1'); // Remove non-digit and non-period characters
                                                 handleDiscountChange(index, positiveDecimalValue)
                                             }}
                                         />
@@ -629,7 +631,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
                                         style={styles.input}
                                         keyboardType="numeric"
                                         value={item.additionalDiscount.toString()}
-                                        editable={item.selected}
+                                        editable={false}
                                         onChangeText={(value) => {
                                             const positiveDecimalValue = value.replace(/[^0-9.]/g, '') // Remove non-digit and non-period characters
                                                 .replace(/(\..*?)\./g, '$1'); // Allow only one decimal point

@@ -77,6 +77,7 @@ const SalesOrderScreen = () => {
     });
     const [tableData, setTableData] = useState([]);
     const [tableDataRepeat, setTableDataRepeat] = useState([]);
+    const [isFileUploaded,setIsFileUploaded]=useState(false)
 
     const fetchData = async () => {
         setLoading(true)
@@ -336,6 +337,8 @@ const SalesOrderScreen = () => {
         return (Math.floor(1000000000 + Math.random() * 9000000000)).toString();
     }
     const OnSubmit = async () => {
+
+        console.log("billllllllllllllllllll",typeof(tabId))
         if (!schoolId) {
             alert("Please select a School/Trade/Govt. Dept.")
             return
@@ -368,6 +371,10 @@ const SalesOrderScreen = () => {
             alert("Please provide PO Number.")
             return
         }
+        if (!isFileUploaded) {
+            alert("Please upload order copy")
+            return
+        }
         setLoading(true)
         try {
             const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_InsertOrderEntry";
@@ -377,7 +384,7 @@ const SalesOrderScreen = () => {
                         "TrnsType": "O",
                         "CustomerID": schoolId,
                         "SchoolID": 0,
-                        "ExecutiveID": sessionDetails.ExecutiveID,
+                        "ExecutiveID": Number(sessionDetails.ExecutiveID),
                         "Source": "OrderEntry",
                         "ItemsDicAmt": 0,
                         "Remark": formData.orderRemarks,
@@ -386,9 +393,9 @@ const SalesOrderScreen = () => {
                         "ShippingAddress": shippingAddress,
                         "ShippingMode": formData.transporterName,
                         "ShippingInstructions": formData.shippingInstructions[0] + formData.shippingInstructions[1] + formData.shippingInstructions[2],
-                        "BillTo": billTo,
+                        "BillTo": billTo+"",
                         "BillingAddress": billingAddress,
-                        "PONumber": Number(formData.poNumber),
+                        "PONumber": formData.poNumber,
                         "ReqDeliveryDate": formData.deliveryDate ? formData.deliveryDate.toISOString() : null,
                         "OrderReason": formData.orderReason,
                         "BundleRemark": formData.bundleRemarks,
@@ -401,8 +408,8 @@ const SalesOrderScreen = () => {
                 "TransactionID": 0,
                 "TabID": tabId,
                 "OrderType": orderType === "New Order" ? "New" : "Repeat",
-                "iCompanyID": sessionDetails.iCompanyID,
-                "UserID": sessionDetails.UserID
+                "iCompanyID": Number(sessionDetails.iCompanyID),
+                "UserID": Number(sessionDetails.UserID)
             }
 
             const url = `${baseUrl}`;
@@ -554,13 +561,15 @@ const SalesOrderScreen = () => {
             setShipTo(customer[0]?.sapCode);
         }
         if (selectedOption === "School" && shipsTo === "School" && schoolData) {
+            console.log(schoolData)
             setShippingAddress(schoolData?.schooladdress);
-            setShipTo(schoolData?.sapcode);
+            setShipTo(schoolId);
         }
-        if (selectedOption === "Trade" && shipsTo === "School") {
-            setShippingAddress(schoolData?.schooladdress);
-            setShipTo(schoolData?.sapcode);
-        }
+        // if (selectedOption === "Trade" && shipsTo === "School") {
+        //     console.log("vhal gya bhai mai")
+        //     setShippingAddress(schoolData?.schooladdress);
+        //     setShipTo(schoolId);// school->school/trade->school/
+        // }
         if (selectedOption === "Trade" && shipsTo === "Trade" && schoolData) {
             setShippingAddress(schoolData?.schooladdress);
             setShipTo(schoolData?.sapcode);
@@ -608,7 +617,7 @@ const SalesOrderScreen = () => {
                 const data = response.data;
                 console.log("Received data:", data);
                 setCustomer(data)
-                setShipTo(data[0]?.sapCode)
+                setShipTo(tradeSchoolId)
                 setShippingAddress(data[0]?.Customer.replace(/<\/br>/g, "").trim())
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -793,7 +802,7 @@ const SalesOrderScreen = () => {
         },
         {
             title: "Other Details",
-            content: <View style={{ height: "fit-content" }}><OrderDetailsForm formData={formData} setFormData={setFormData} tabID={tabId} /></View>,
+            content: <View style={{ height: "fit-content" }}><OrderDetailsForm formData={formData} setFormData={setFormData} tabID={tabId} isFileUploaded={isFileUploaded} setIsFileUploaded={setIsFileUploaded}/></View>,
         },
     ];
 
