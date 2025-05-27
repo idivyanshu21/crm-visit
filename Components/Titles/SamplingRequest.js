@@ -148,7 +148,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         const concatenatedBookCodes = getConcatenatedBookCodes();
 
         try {
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "LoadTitleStockExeDis",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -344,7 +344,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetMasterTeacherProfessor",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -389,7 +389,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetBroadSubjectInExecutiveWithSeriesAndTitle",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -426,7 +426,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
     const fetchmonths = async () => {
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "GetSchoolSamplingMonth",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -489,7 +489,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: title === "Title in Series" ? "GetMasterSeries" : "GetMasterTitle",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -542,7 +542,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
         setLoading(true)
         try {
             // console.log(classValue, formData.selectedSeries);
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "LoadBookTypeInSeriesAndBook",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -597,7 +597,7 @@ const SamplingRequest = ({ samplingRequest = true, schoolCode, schoolData,
     const fetchShipmentMode = async () => {
         setLoading(true)
         try {
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetShipmentMode",
                 iCompanyID: sessionDetails.iCompanyID,

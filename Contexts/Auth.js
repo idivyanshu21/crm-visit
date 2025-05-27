@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (responseData) => {
+        // console.log("Login response data:", responseData);
         setAuthDetails(responseData);
         await saveSession(responseData);
     };

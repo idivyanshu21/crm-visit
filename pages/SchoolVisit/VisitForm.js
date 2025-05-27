@@ -36,7 +36,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId, isD
   const fetchVisitedWithOtherExecutives = async () => {
     setLoading(true)
     try {
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetExecByTerritory",
         iCompanyID: sessionDetails?.iCompanyID,
@@ -70,7 +70,7 @@ const FormWithFloatingLabels = ({ formData, setFormData, OnSubmit, schoolId, isD
   const fetchEPM = async () => {
     setLoading(true)
     try {
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetEPMExecutive",
         iCompanyID: sessionDetails?.iCompanyID,

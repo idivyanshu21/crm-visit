@@ -1,13 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const saveSession = async (data) => {
-    console.log(data)
-    const ExecutiveId=data['UserID'].toString()
-    const iCompanyID= data["iCompanyID"].toString()
-    const UserName= data["Username"].toString()
-    const ExecutiveName= data["ExecutiveName"].toString()
-    const GroupName= data["ExecutiveDesignation"].toString()
-   // console.log('-------------->',data,'====', ExecutiveId,iCompanyID,UserName,ExecutiveName,GroupName )
+    // console.log("saveSessionData",data)
+    const ExecutiveId = data["UserID"] ? data["UserID"].toString() : "";
+    const iCompanyID = data["iCompanyID"] ? data["iCompanyID"].toString() : "";
+    const UserName = data["Username"] ? data["Username"].toString() : "";
+    const ExecutiveName = data["ExecutiveName"] ? data["ExecutiveName"].toString() : "";
+    const GroupName = data["ExecutiveDesignation"] ? data["ExecutiveDesignation"].toString() : "";
+//    console.log('-------------->',data,'====', ExecutiveId,iCompanyID,UserName,ExecutiveName,GroupName )
     try {
         await AsyncStorage.setItem('ExecutiveID',ExecutiveId);
         await AsyncStorage.setItem('UserID',ExecutiveId);

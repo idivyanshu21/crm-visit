@@ -2,6 +2,8 @@ import { Button, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } fr
 import Logo from '../../assets/Images/logo.jpg';
 import Schoolvisitbtn from '../../assets/Images/schoolvisitbtn.jpg';
 import Orderentrybtn from '../../assets/Images/orderentrybtn.jpg';
+import ApprovalScrbtn from '../../assets/cloud.png';
+import Sponsorshipbtn from '../../assets/adaptive-icon.png';
 import { useAuth } from "../../Contexts/Auth";
 
 const HomeScreen = ({ navigation }) => {
@@ -25,13 +27,32 @@ const HomeScreen = ({ navigation }) => {
                 source={Logo}
                 style={styles.backgroundImage}
             />
-            <View style={{ flexDirection: "row", width: "100%", padding: 10, justifyContent: "space-between", marginTop: 15 }}>
+            <View style={styles.container}>
                 <TouchableOpacity onPress={() => navigation.navigate("SalesOrder")}>
                     <Image source={Orderentrybtn} style={styles.btn} />
+                    <View style={{ paddingBottom: 10, alignItems: "center" }}>
+                        <Text style={{ color: "#000", fontSize: 16 }}>Order Entry</Text>
+                    </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate("SchoolVisit")}>
                     <Image source={Schoolvisitbtn} style={styles.btn} />
+                    <View style={{ paddingBottom: 10, alignItems: "center" }}>
+                        <Text style={{ color: "#000", fontSize: 16 }}>School Visit</Text>
+                    </View>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("ApprovalScr")}>
+                    <Image source={ApprovalScrbtn} style={styles.btn} />
+                    <View style={{ paddingBottom: 10, alignItems: "center" }}>
+                        <Text style={{ color: "#000", fontSize: 16 }}>Approval</Text>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("SponsorshipPhotoValidation")}>
+                    <Image source={Sponsorshipbtn} style={styles.btn} />
+                    <View style={{ paddingBottom: 10, alignItems: "center" }}>
+                        <Text style={{ color: "#000", fontSize: 16 }}>Sponsorship</Text>
+                    </View>
+                </TouchableOpacity>
+                
             </View>
             <View style={{ padding: 10, alignItems: "center", marginTop: 20 }}>
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -51,10 +72,11 @@ const styles = StyleSheet.create({
         boxShadow: "0px 2px 3px #00000010",
     },
     btn: {
-        width: 165,
-        height: 120,
+        width: 120,
+        height: 100,
         borderRadius: 20,
         boxShadow: "0px 1px 3px #00000040",
+        objectFit: "cover",
     },
     logoutButton: {
         width: "80%",
@@ -68,6 +90,15 @@ const styles = StyleSheet.create({
         fontSize: 18,
         // fontWeight: "bold",
     },
+    container:{
+        flexDirection: "row",
+        flexWrap: "wrap",
+        width: "100%",
+        padding: 10,
+        justifyContent: "space-between",
+        marginTop: 15,
+        overflow: "hidden",
+    }
 });
 
 export default HomeScreen;

@@ -19,6 +19,7 @@ import TitlesSales from "../../Components/Titles/TitlesSales";
 import useSessionDetails from "../../Contexts/sessionDetails";
 import Loader from "../../Components/Loader";
 import IOSPicker from "../../Components/IOSPicker";
+import { FindCommonDataForEdit, GetCommonDataForGrid, GetCommonDataFromDatabase, InsertOrderEntry, SalesOrder } from "../../API/APIConfig";
 // import axios from "axios";
 const SalesOrderScreen = () => {
     const [selectedOption, setSelectedOption] = useState("School");
@@ -32,6 +33,7 @@ const SalesOrderScreen = () => {
     const [customerOT, setCustomerOT] = useState([])
     const [orderData, setOrderData] = useState([])
     const [schoolId, setSchoolId] = useState('');
+    const [tradeId,setTradeId] = useState('');
     const [stateId, setStateId] = useState('');
     const [stateIdOT, setStateIdOT] = useState('');
     const [series, setSeries] = useState()
@@ -62,6 +64,7 @@ const SalesOrderScreen = () => {
         discount: "",
         sapCode: "",
         state: "",
+        trade:"",
         poNumber: "",
         deliveryDate: "",
         orderReason: "",
@@ -83,262 +86,119 @@ const SalesOrderScreen = () => {
         setLoading(true)
         setShow(false)
         try {
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
-            const params = {
-                ActionType: "GetAllTypeCustomerWithSearch",
-                iCompanyID: sessionDetails.iCompanyID,
-                Col1: selectedOption === "Govt. Dept." ? "Government" : selectedOption,
-                Col2: "",
-                Col3: "",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                UserID: sessionDetails.UserID,
-            };
-
-            const url = `${baseUrl}`;
-            ////console.log('Request URL:', url);
-
-            // Make the POST request using axios
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-
-            const data = response.data;
-            //console.log("Received data:", data);
-
-            // Set the state with the fetched data
-            setOrderData(data);
-            setShow(true)
+            const selectedTab = selectedOption === "Govt. Dept." ? "Government" : selectedOption;
+            await SalesOrder("GetAllTypeCustomerWithSearch",sessionDetails.iCompanyID,selectedTab,"","","","","",sessionDetails.UserID).then((response)=>{
+                setOrderData(response);
+                setShow(true)
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     };
+
     const fetchDataTradetoSchool = async () => {
         setLoading(true)
         try {
-            // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
-            const params = {
-                ActionType: "GetAllTypeCustomerWithSearch",
-                iCompanyID: sessionDetails.iCompanyID,
-                Col1: "School",
-                Col2: "",
-                Col3: "",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                UserID: sessionDetails.UserID,
-            };
-
-            const url = `${baseUrl}`;
-            ////console.log('Request URL:', url);
-
-            // Make the POST request using axios
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-
-            const data = response.data;
-            setTradeToSchoolData(data);
+            await SalesOrder("GetAllTypeCustomerWithSearch",sessionDetails.iCompanyID,"School","","","","","",sessionDetails.UserID).then((response)=>{
+                setTradeToSchoolData(response);
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     };
+
     const fetchExecutivesAndSubordinates = async () => {
         setLoading(true)
+        // console.log("executive",sessionDetails)
         try {
-            // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
-            const params = {
-                ActionType: "GetExecutiveAndSubordinates",
-                iCompanyID: sessionDetails.iCompanyID,
-                Col1: "",
-                Col2: "",
-                Col3: "",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                UserID: sessionDetails.UserID,
-            };
-
-            const url = `${baseUrl}`;
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-
-            const data = response.data;
-            setExecutiveData(data);
-            if (data.length === 1) {
-                setFormData({ ...formData, executive: data[0].Value_v })
-            }
+            await SalesOrder("GetExecutiveAndSubordinates",sessionDetails.iCompanyID,"","","","","","",sessionDetails.UserID).then((response)=>{
+                // console.log("executive_data",response)
+                setExecutiveData(response);
+                if (response.length === 1) {
+                    setFormData({ ...formData, executive: response[0].Value_v })
+                }
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     }
+
     const fetchAcademicSession = async () => {
         setLoading(true)
         try {
-            // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
-            const params = {
-                ActionType: "GetAcademicSession",
-                iCompanyID: sessionDetails.iCompanyID,
-                Col1: "",
-                Col2: "",
-                Col3: "",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                UserID: sessionDetails.UserID,
-            };
-            const url = `${baseUrl}`;
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-            const data = response.data;
-            setAcademicSession(data);
+            await SalesOrder("GetAcademicSession",sessionDetails.iCompanyID,"","","","","","",sessionDetails.UserID).then((response)=>{
+                // console.log("academic_session",response)
+                setAcademicSession(response);
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     }
+
     const fetchCustomerDetails = async (billTo) => {
         setLoading(true)
         try {
-            // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
-            const params = {
-                ActionType: "GetCustomerData",
-                iBranchID: 1,
-                FinancialPeriod: "2024-2024",
-                iCompanyID: sessionDetails.iCompanyID,
-                Col1: "",
-                Col2: Number(formData?.sapCode),
-                Col3: "trade",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                Col7: "",
-                Col8: "",
-                Col9: "",
-                Col10: "",
-                UserID: sessionDetails.UserID,
-            };
-            const url = `${baseUrl}`;
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-            const data = response.data;
-            console.log("Received data:", data);
-            setCustomer(data)
-            billTo && setBillTo(data[0].sapCode)
-            billTo && setBillingAddress(data[0].Customer.replace(/<\/br>/g, "").trim())
+            const SapCode =  Number(formData?.sapCode);
+            await GetCommonDataFromDatabase("GetCustomerData",sessionDetails.iCompanyID,"",SapCode,"trade","","","","","","","",sessionDetails.UserID).then((data)=>{
+                // console.log("Received data:", data);
+                setCustomer(data)
+                billTo && setBillTo(data[0].sapCode)
+                billTo && setBillingAddress(data[0].Customer.replace(/<\/br>/g, "").trim())
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     }
+
     const fetchSchoolDetails = async () => {
         setLoading(true)
         try {
             setLoading(true)
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_FindCommonDataForEdit";
-            const params = {
-                ActionType: selectedOption === 'School' ? "GetSchoolDetails" : selectedOption === 'Trade' ? "GetTradeDetails" : "",
-                iCompanyID: sessionDetails.iCompanyID,
-                LoadId: schoolId,
-                UserID: sessionDetails.UserID,
-            };
-
-            const url = `${baseUrl}`;
-
-            // Make the POST request using axios
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-            const data = response.data[0];
-            //console.log(data)
-            setSchoolData(data);
+            const actType = selectedOption === 'School' ? "GetSchoolDetails" : selectedOption === 'Trade' ? "GetTradeDetails" : "";
+            await FindCommonDataForEdit(actType,sessionDetails.iCompanyID,schoolId,sessionDetails.UserID).then((response)=>{
+                setSchoolData(response); 
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     }
+
     const fetchOtherTradeDetails = async () => {
         setLoading(true)
         try {
-            // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
-            const params = {
-                ActionType: "GetCustomerData",
-                iBranchID: 1,
-                FinancialPeriod: "2024-2024",
-                iCompanyID: sessionDetails.iCompanyID,
-                Col1: "",
-                Col2: Number(formDataOT.sapCode), //10794
-                Col3: "trade",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                Col7: "",
-                Col8: "",
-                Col9: "",
-                Col10: "",
-                UserID: sessionDetails.UserID,
-            };
-            const url = `${baseUrl}`;
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-            const data = response.data;
-            console.log("Received data:", data);
-            setCustomerOT(data)
-            billTo && setShipTo(data[0].sapCode)
-            billTo && setShippingAddress(data[0].Customer.replace(/<\/br>/g, "").trim())
+            const SapCode =  Number(formDataOT.sapCode); //10794
+            await GetCommonDataFromDatabase("GetCustomerData",sessionDetails.iCompanyID,"",SapCode,"trade","","","","","","","",sessionDetails.UserID).then((data)=>{
+                // console.log("Received data:", data);
+                setCustomerOT(data)
+                billTo && setShipTo(data[0].sapCode)
+                billTo && setShippingAddress(data[0].Customer.replace(/<\/br>/g, "").trim())
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     }
+
     function generateRandom10DigitNumber() {
         return (Math.floor(1000000000 + Math.random() * 9000000000)).toString();
     }
-    const OnSubmit = async () => {
 
-        console.log("billllllllllllllllllll",typeof(tabId))
+    const OnSubmit = async () => {
+        // console.log("billllllllllllllllllll",typeof(tabId))
         if (!schoolId) {
             alert("Please select a School/Trade/Govt. Dept.")
             return
@@ -377,7 +237,6 @@ const SalesOrderScreen = () => {
         }
         setLoading(true)
         try {
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_InsertOrderEntry";
             const body = {
                 "headerData": [
                     {
@@ -411,73 +270,45 @@ const SalesOrderScreen = () => {
                 "iCompanyID": Number(sessionDetails.iCompanyID),
                 "UserID": Number(sessionDetails.UserID)
             }
-
-            const url = `${baseUrl}`;
-            console.log(body)
-            const response = await axios.post(url, body, {
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-
-            // Access the data from the response
-            const data = response.data;
-            console.log("++=+==+===+++++>>>>>>>", data)
-            alert(`${data[0].statusRemark}`)
-            setFormData({
-                executive: "",
-                academicSession: "",
-                selectedSubject: "",
-                quantity: "",
-                discount: "",
-                sapCode: "",
-                state: "",
-                poNumber: "",
-                deliveryDate: new Date(),
-                orderReason: "",
-                transporterName: "",
-                shippingInstructions: ["", "", ""],
-                bundleRemarks: "",
-                orderRemarks: "",
-                file: null,
+            await InsertOrderEntry(body).then((data)=>{
+                // console.log("++=+==+===+++++>>>>>>>", data)
+                alert(`${data[0].statusRemark}`)
+                setFormData({
+                    executive: "",
+                    academicSession: "",
+                    selectedSubject: "",
+                    quantity: "",
+                    discount: "",
+                    sapCode: "",
+                    state: "",
+                    poNumber: "",
+                    deliveryDate: new Date(),
+                    orderReason: "",
+                    transporterName: "",
+                    shippingInstructions: ["", "", ""],
+                    bundleRemarks: "",
+                    orderRemarks: "",
+                    file: null,
+                })
+                setTableData([])
+                setMappedData([])
+                setTabId(generateRandom10DigitNumber())
             })
-            setTableData([])
-            setMappedData([])
-            setTabId(generateRandom10DigitNumber())
-
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     };
+
     const fetchRepeatOrderDetails = async () => {
         try {
             setLoading(true)
-            console.log("+++++++++++++")
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataForGrid";
-            const params = {
-                ActionType: "RepeatOrderInEntry",
-                Col1: schoolId,
-                Col2: "School",
-                Col3: "",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                iCompanyID: sessionDetails.iCompanyID,
-                UserID: 988,
-            };
-            const url = `${baseUrl}`;
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-            const data = response.data;
-            console.log(data)
-            setInitialData(data)
+            await GetCommonDataForGrid("RepeatOrderInEntry",sessionDetails.iCompanyID,schoolId,"School","","","","",sessionDetails.UserID).then((response)=>{
+                // console.log("Repeat Order",response)
+                setInitialData(response);
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -535,6 +366,7 @@ const SalesOrderScreen = () => {
         fetchExecutivesAndSubordinates()
         fetchAcademicSession()
     }, [sessionDetails.UserID])
+
     useEffect(() => {
         if (schoolId) {
             fetchSchoolDetails();
@@ -587,38 +419,13 @@ const SalesOrderScreen = () => {
 
         const fetchCustomerSchoolDetails = async () => {
             try {
-                console.log("executed")
-                // Construct the URL with query parameters
-                const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
-                const params = {
-                    ActionType: "GetCustomerData",
-                    iBranchID: 1,
-                    FinancialPeriod: "2024-2024",
-                    iCompanyID: sessionDetails.iCompanyID,
-                    Col1: "",
-                    Col2: tradeSchoolId,
-                    Col3: "school",
-                    Col4: "",
-                    Col5: "",
-                    Col6: "",
-                    Col7: "",
-                    Col8: "",
-                    Col9: "",
-                    Col10: "",
-                    UserID: sessionDetails.UserID,
-                };
-                const url = `${baseUrl}`;
-                const response = await axios.post(url, null, {
-                    params: params, // Send the params as query parameters
-                    headers: {
-                        "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                    },
-                });
-                const data = response.data;
-                console.log("Received data:", data);
-                setCustomer(data)
-                setShipTo(tradeSchoolId)
-                setShippingAddress(data[0]?.Customer.replace(/<\/br>/g, "").trim())
+                // console.log("executed")
+                await GetCommonDataFromDatabase("GetCustomerData",sessionDetails.iCompanyID,"",tradeSchoolId,"school","","","","","","","",sessionDetails.UserID).then((data)=>{
+                    // console.log("Received data:", data);
+                    setCustomer(data)
+                    setShipTo(tradeSchoolId)
+                    setShippingAddress(data[0]?.Customer.replace(/<\/br>/g, "").trim())
+                })
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -641,10 +448,12 @@ const SalesOrderScreen = () => {
     useEffect(() => {
         repeatCardsMap()
     }, [initialData])
+
     useEffect(() => {
         const options = orderData.map((item) => ({ id: item.Value_v, name: item.Text_t }))
         setDropdownOptions(options)
     }, [orderData])
+
     const dropdownOptionsTradeSchool = tradeToSchoolData?.map((item) => ({ id: item.Value_v, name: item.Text_t }))
     const ShippingOptions = ['School', 'Trade', 'Other Trade', 'Other Address']
 
@@ -737,7 +546,7 @@ const SalesOrderScreen = () => {
 
                     {selectedOption === 'Trade' && shipsTo !== "" &&
                         (shipsTo === 'Other Address' ? <AddressForm /> : shipsTo === 'Other Trade' ?
-                            <><Trade formData={formDataOT} setFormData={setFormDataOT} stateId={stateIdOT} setStateId={setStateIdOT} fetchCustomerDetails={fetchOtherTradeDetails} />
+                            <><Trade formData={formDataOT} setFormData={setFormDataOT} tradeId={tradeId} setTradeId={setTradeId} stateId={stateIdOT} setStateId={setStateIdOT} fetchCustomerDetails={fetchOtherTradeDetails} />
                                 <Details data={customerOT[0]} />
                             </>
                             : shipsTo === 'School' ?

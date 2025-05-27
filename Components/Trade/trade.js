@@ -5,38 +5,55 @@ import { useEffect, useState } from "react";
 import globalStyles from "../../globalCSS";
 import axios from "axios";
 import Loader from "../Loader";
+import { GetStateData, GetTradeNameList } from "../../API/APIConfig";
 
-const Trade = ({ formData, setFormData, stateId, setStateId, fetchCustomerDetails }) => {
+const Trade = ({ formData, setFormData, stateId, setStateId, fetchCustomerDetails,tradeId,setTradeId }) => {
     const [state, setState] = useState("")
+    const [tradelist,setTradeList]=useState([])
     const [loading,setLoading]=useState(false)
     const StateData = state && state?.map((item) => ({ id: item.StateID, name: item.StateName }))
+    const tradeData = tradelist && tradelist?.map((item) => ({ id: item.Value_v, name: item.Text_t }))
         const fetchState = async () => {
             setLoading(true)
             try {
-                // Construct the URL with query parameters
-                const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetState";
-                const params = {
-                   
-                };
-                const url = `${baseUrl}`;
-                const response = await axios.post(url, null, {
-                    params: params, // Send the params as query parameters
-                    headers: {
-                        "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                    },
-                });
-                const data = response.data;
-                setState(data)
-                console.log("______++++_____>>>>",data)
+                await GetStateData().then((response)=>{
+                    setState(response)
+                }).catch((error)=>{
+                    console.log("Error fetching state data:", error);
+                })
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
                 setLoading(false);
             }
         }
+
         useEffect(()=>{
             fetchState()
         },[])
+
+        const fetchTradeList = async (stateId) => {
+            setLoading(true);
+            try {
+                await GetTradeNameList("GetBillingShippingTrade","Trade",stateId, "", "", "","").then((response) => {
+                    // console.log(`Trade List:`, response.Data);
+                    setTradeList(response.Data);
+                }).catch((error) => {
+                    console.log("Error fetching trade list:", error);
+                })
+            } catch (error) {
+                console.error("Error fetching trade list:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        useEffect(()=>{
+            if (stateId) {
+               fetchTradeList(stateId)
+            }
+        },[formData.state])
+
     return (
         <>
         {loading && <Loader />}
@@ -61,6 +78,37 @@ const Trade = ({ formData, setFormData, stateId, setStateId, fetchCustomerDetail
                         })), // Update value on typing
                     }}
                     placeholder="Search and select"
+                    itemStyle={globalStyles.dropdownItem} // Style for dropdown items
+                    itemTextStyle={{ color: "#000" }}
+                    textInputStyle={globalStyles.searchInput}
+                    itemsContainerStyle={globalStyles.itemContainer}
+                    listProps={{
+                        nestedScrollEnabled: true,
+                    }}
+                    resetValue={false} // Prevent resetting to placeholder
+                />
+            </View>
+            <Text style={{ paddingBottom: 5, color: '#00000095' }}>Trade Name*</Text>
+            <View style={[globalStyles.dropdownContainer, { minWidth: '100%', marginBottom: 10 }]}>
+                <SearchableDropDown
+                    items={tradeData} // Dropdown options
+                    onItemSelect={(item) => {
+                        setFormData((prev) => ({
+                            ...prev,
+                            trade: item.name,
+                        }))
+                        setTradeId(item.id)
+                    }
+                    } // Update input field
+                    textInputProps={{
+                        value: formData.trade, // Bind value to input
+                        placeholder: "Select Trade Name",
+                        onChangeText: (text) => setFormData((prev) => ({
+                            ...prev,
+                            trade: text,
+                        })), // Update value on typing
+                    }}
+                    placeholder="Select Trade Name"
                     itemStyle={globalStyles.dropdownItem} // Style for dropdown items
                     itemTextStyle={{ color: "#000" }}
                     textInputStyle={globalStyles.searchInput}

@@ -39,7 +39,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
     setLoading(true)
     try {
       // Construct the URL with query parameters
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: title === "Title in Series" ? "GetMasterSeries" : "GetMasterTitle",
         iCompanyID: sessionDetails.iCompanyID,
@@ -86,7 +86,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
     setLoading(true)
     try {
       // console.log(classValue, formData.selectedSeries);
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+      const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonDataFromDB";
       const params = {
         ActionType: "LoadBookTypeInSeriesAndBook",
         iCompanyID: sessionDetails.iCompanyID,
@@ -257,7 +257,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
         .filter(Boolean) // Ensure no undefined or null values are included
         .join(',');
 
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+      const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonDataFromDB";
       const params = {
         ActionType: title === "Title in Series" ? "LoadSeriesInTitle" : "LoadTitleClass",
         iCompanyID: sessionDetails.iCompanyID,
@@ -379,7 +379,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
 
     try {
       //console.log(classValue, formData.selectedSeries);
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetMasterPublisherComp",
         iCompanyID: sessionDetails.iCompanyID,
@@ -413,7 +413,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
   };
   // const fetchCompetitorSeriesForRows = async (seriesId, publisherValue) => {
   //   try {
-  //     const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+  //     const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
   //     const params = {
   //       ActionType: "GetMasterSeriesForPublisher",
   //       iCompanyID: 1,
@@ -451,7 +451,7 @@ const OrderProcess = ({ samplingRequest = false, boardSubject, title, classValue
   const loadAdoptionChances = async () => {
     try {
       //console.log(classValue, formData.selectedSeries);
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetAdpotionChances",
         iCompanyID: sessionDetails.iCompanyID,

@@ -14,6 +14,7 @@ const useSessionDetails = () => {
 
     useEffect(() => {
         getSession().then(session => {
+            // console.log("Session data:", session)
             if (session && session.ExecutiveName) {
                 setSessionDetails({
                     ExecutiveID: session.ExecutiveID,

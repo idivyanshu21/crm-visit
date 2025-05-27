@@ -40,7 +40,7 @@ const OrderDetailsForm = ({ formData, setFormData, tabID, isFileUploaded,setIsFi
   const fetchCustomerDetails = async (billTo) => {
     try {
       // Construct the URL with query parameters
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+      const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
       const params = {
         ActionType: "GetOrderReason",
         iCompanyID: sessionDetails.iCompanyID,
@@ -110,7 +110,7 @@ const OrderDetailsForm = ({ formData, setFormData, tabID, isFileUploaded,setIsFi
     if (file && fileDetails) {
       const uploadFile = async () => {
         try {
-          const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_UploadFiles";
+          const baseUrl = "https://visit.cloudpub.in/api/CRM_UploadFiles";
           const body = {
             UserID: sessionDetails.UserID,
             iCompanyID: sessionDetails.iCompanyID,

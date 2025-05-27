@@ -6,9 +6,12 @@ import SalesOrderScreen from './pages/SalesOrder/SalesOrderScreen';
 import SchoolVisitScreen from './pages/SchoolVisit/SchoolVisitScreen';
 import Enrollment from './pages/SchoolVisit/SchoolDetails/Enrollment';
 import LoginScreen from './pages/Login/Login';
+import ApprovalScr from './Components/Approval';
+import ApprovalList from './pages/DocList';
 import { getSession } from './Contexts/Session'; // Your session management logic
 import { AuthProvider } from './Contexts/Auth';
 import { ActivityIndicator, View } from 'react-native';
+import SponsorshipPhotoValidate from './pages/Sponsorship/SponsorshipPhotoValidate';
 
 const Stack = createStackNavigator();
 
@@ -65,10 +68,32 @@ const App = () => {
             {() => <SchoolVisitScreen />}
           </Stack.Screen>
           <Stack.Screen
+            name="ApprovalScr"
+            options={{ title: 'Approval', headerTransparent: true }}
+          >
+            {() => <ApprovalScr />}
+          </Stack.Screen>
+
+          <Stack.Screen
+            name="ApprovalList"
+            options={{ title: 'UnApproved List', headerTransparent: true }}
+          >
+            {() => <ApprovalList />}
+          </Stack.Screen>
+
+          
+          <Stack.Screen
             name="Enrollment"
             options={{ title: 'Update Enrollment', headerTransparent: true }}
           >
             {() => <Enrollment />}
+          </Stack.Screen>
+          
+          <Stack.Screen
+            name="SponsorshipPhotoValidation"
+            options={{ title: 'Sponsorship', headerTransparent: true }}
+          >
+            {() => <SponsorshipPhotoValidate />}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>

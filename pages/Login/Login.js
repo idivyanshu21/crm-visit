@@ -4,32 +4,26 @@ import axios from "axios";
 import Logo from '../../assets/Images/logo.jpg';
 import { useAuth } from "../../Contexts/Auth";
 import Loader from "../../Components/Loader";
+import { CRM_Login } from "../../API/APIConfig";
+import { Ionicons } from "@expo/vector-icons";
 
 const LoginScreen = ({ navigation }) => {
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleLogin = async () => {
     try {
       setLoading(true);
-
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_Login";
-      //   const params = { UserName: username, Password: password };
-      const url = `${baseUrl}?UserName=${encodeURIComponent(username)}&Password=${encodeURIComponent(password)}`;
-
-      const response = await axios.post(url, null, {
-
-        headers: {
-          Authorization: "Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC",
-        },
-      });
-      //   console.log(response.data[0])
-      const authData = response?.data[0];
-      login(authData);
-      alert("Login Successful");
-      navigation.navigate("Home")
+      await CRM_Login(username, password).then((response)=>{
+        // console.log("Login response:", response);
+        login(response);
+        alert("Login Successful");
+        navigation.navigate("Home")
+      })
     } catch (error) {
       console.error("Error during login:", error);
       alert("Login Failed");
@@ -60,13 +54,30 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setUsername}
           autoCapitalize="none"
         />
+      <View style={styles.passwordContainer}>
         <TextInput
-          style={styles.input}
+          style={styles.passwordInput}
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={!showPassword}
+          autoCapitalize="none"
         />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons
+            name={showPassword ? 'eye' : 'eye-off'}
+            size={24}
+            color="gray"
+          />
+        </TouchableOpacity>
+      </View>
+        <View style={{ width: "80%", alignItems: "flex-end" }}>
+          <TouchableOpacity onPress={() => alert("Forgot Password")}>
+            <Text style={{ color: "gray", fontSize: 14, marginTop: 5,marginBottom:10}}>
+                Forget Password?
+            </Text>
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
           {loading ? (
             <ActivityIndicator color="#fff" />
@@ -102,14 +113,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    width: "80%",
+    width: '80%',
     height: 50,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderRadius: 18,
     paddingHorizontal: 10,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
   },
   button: {
     width: "80%",
@@ -122,6 +133,22 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 18,
+  },
+    passwordContainer: {
+    width: '80%',
+    height: 50,
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+    passwordInput: {
+    flex: 1,
+    height: '100%',
   },
 });
 

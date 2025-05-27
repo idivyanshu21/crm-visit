@@ -13,6 +13,7 @@ import { useRoute } from "@react-navigation/native";
 import useSessionDetails from "../../../Contexts/sessionDetails";
 import axios from "axios";
 import Loader from "../../../Components/Loader";
+import { FindCommonDataForEdit, UpdateEnrollment } from "../../../API/APIConfig";
 
 const Enrollment = () => {
   const route = useRoute();
@@ -24,30 +25,14 @@ const Enrollment = () => {
   console.log(schoolID)
   const [enrollmentData, setEnrollmentData] = useState('');
   const [backupData, setBackupData] = useState('');
+
   const fetchSchoolDetails = async () => {
     try {
       setLoading(true)
       // Construct the URL with query parameters
-      const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_FindCommonDataForEdit";
-      const params = {
-        ActionType: "GetSchoolDetails",
-        iCompanyID: sessionDetails.iCompanyID,
-        LoadId: schoolID,
-        UserID: sessionDetails.UserID,
-      };
-
-      const url = `${baseUrl}`;
-
-      // Make the POST request using axios
-      const response = await axios.post(url, null, {
-        params: params, // Send the params as query parameters
-        headers: {
-          "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-        },
-      });
-      const data = response.data[0];
-      console.log(data)
-      setEnrollmentObject(data);
+      await FindCommonDataForEdit("GetSchoolDetails",sessionDetails.iCompanyID, schoolID, sessionDetails.UserID).then((response) => {
+        setEnrollmentObject(response);
+      })
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -145,7 +130,6 @@ const handleSubmit = async () => {
   console.log("Updated Enrollment Data:", enrollmentData);
   try {
     // Construct the URL with query parameters
-    const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_UpdateEnrollment";
     const params = {
       SchoolID: schoolID,
       Enrolment_Pre_Primary: enrollmentData.ppenrolment || 0,
@@ -170,22 +154,11 @@ const handleSubmit = async () => {
       Enrolment_Class12Enrol: enrollmentData.Class12Enrol || 0,
       iCompanyID: sessionDetails.iCompanyID,
       UserID: sessionDetails.ExecutiveID
-
     };
-
-    const url = `${baseUrl}`;
-    const response = await axios.post(url, null, {
-      params: params,
-      headers: {
-        "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-      },
-    });
-
-    // Access the data from the response
-    const data = response.data;
-    console.log("Received data:", data);
-    fetchSchoolDetails()
-    alert(response.data[0].Result)
+    await UpdateEnrollment(params).then((response) => {
+      fetchSchoolDetails()
+      alert(response.data[0].Result)
+    })
   } catch (error) {
     console.error("Error fetching data:", error);
   } finally {

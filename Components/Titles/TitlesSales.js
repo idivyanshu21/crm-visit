@@ -134,7 +134,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: "GetBroadSubjectInExecutiveWithSeriesAndTitle",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -174,7 +174,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonComboLoader";
             const params = {
                 ActionType: title === "Title in Series" ? "GetMasterSeries" : "GetMasterTitle",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -214,7 +214,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
         setLoading(true)
         try {
             // console.log(classValue, formData.selectedSeries);
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "LoadBookTypeInSeriesAndBook",
                 iCompanyID: sessionDetails.iCompanyID,
@@ -272,7 +272,7 @@ const TitlesSales = ({ orderType, tableDataRepeat, setTableDataRepeat, formData,
         setLoading(true)
         try {
             // const concatenatedBookCodes = getConcatenatedBookCodes(allBookData);
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
+            const baseUrl = "https://visit.cloudpub.in/api/CRM_GetCommonDataFromDB";
             const params = {
                 ActionType: "LoadTitleAndSeriesDisc",
                 iCompanyID: sessionDetails.iCompanyID,

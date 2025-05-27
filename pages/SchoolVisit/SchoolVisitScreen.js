@@ -25,6 +25,7 @@ import SamplingRequest from "../../Components/Titles/SamplingRequest";
 import useSessionDetails from "../../Contexts/sessionDetails";
 import Loader from "../../Components/Loader.js";
 import SamplingHistory from "../../Components/SamplingHistory.js";
+import { FindCommonDataForEdit, GetCommonDataFromDatabase, InsertVisitEntryMaster, SalesOrder } from "../../API/APIConfig.js";
 
 const SchoolVisitScreen = () => {
     const sessionDetails = useSessionDetails()
@@ -207,7 +208,6 @@ const SchoolVisitScreen = () => {
 
         setLoading(true)
         try {
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_InsertVisitEntryMaster";
             const body = {
                 "jsonObj": {
                     "AppId": generateRandom4DigitString(),
@@ -287,59 +287,47 @@ const SchoolVisitScreen = () => {
                 "iCompanyID": 1,
                 "UserID": sessionDetails.ExecutiveID
             };
-
-            const url = `${baseUrl}`;
-            // console.log('Request URL:', url);
-
-            // Make the POST request using axios
-            console.log(body)
-            const response = await axios.post(url, body, {
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-
-            // Access the data from the response
-            const data = response.data;
-            alert(`${data[0].ShowStatus}`)
-            setFormDataVD({
-                visitedWith: "",
-                purpose: "",
-                visitDate: new Date(),
-                reason: "",
-                demoBy: "",
-                demoType: "",
-                selectedEPM: "",
-                feedback: "",
-                followUp: false,
-                followUpDate: new Date(),
-                followUpAction: "",
-                remark: "",
+            await InsertVisitEntryMaster(body).then((response)=>{
+                alert(`${response[0].ShowStatus}`)
+                setFormDataVD({
+                    visitedWith: "",
+                    purpose: "",
+                    visitDate: new Date(),
+                    reason: "",
+                    demoBy: "",
+                    demoType: "",
+                    selectedEPM: "",
+                    feedback: "",
+                    followUp: false,
+                    followUpDate: new Date(),
+                    followUpAction: "",
+                    remark: "",
+                })
+                setFormData({
+                    selectedSubject: '',
+                    selectedSeries: '',
+                    quantity: '',
+                    discount: '',
+                    teacher: '',
+                    shipTo: '',
+                    samplingCopyType: '',
+                    samplingType: '',
+                    shipmentMode: '',
+                    samplingInstructions: '',
+                    selectedSubjectSR: '',
+                    selectedSeriesSR: '',
+                })
+                setOrderList([])
+                setTableData([])
+                setSalesPlanData([])
+                setSalesPlanDetailData([])
+                setInvoiceMonth('')
+                setInvoiceYear('')
+                setSampleMonth('')
+                setSampleYear('')
+                setCards([])
+                setTableDataSR([])
             })
-            setFormData({
-                selectedSubject: '',
-                selectedSeries: '',
-                quantity: '',
-                discount: '',
-                teacher: '',
-                shipTo: '',
-                samplingCopyType: '',
-                samplingType: '',
-                shipmentMode: '',
-                samplingInstructions: '',
-                selectedSubjectSR: '',
-                selectedSeriesSR: '',
-            })
-            setOrderList([])
-            setTableData([])
-            setSalesPlanData([])
-            setSalesPlanDetailData([])
-            setInvoiceMonth('')
-            setInvoiceYear('')
-            setSampleMonth('')
-            setSampleYear('')
-            setCards([])
-            setTableDataSR([])
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -455,36 +443,11 @@ const SchoolVisitScreen = () => {
         setLoading(true)
         try {
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonComboLoader";
-            const params = {
-                ActionType: "GetAllTypeCustomerWithSearch",
-                iCompanyID: sessionDetails.iCompanyID,
-                Col1: "School",
-                Col2: "",
-                Col3: "",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                UserID: sessionDetails.ExecutiveID,
-            };
-
-            const url = `${baseUrl}`;
-            // console.log('Request URL:', url);
-
-            // Make the POST request using axios
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-
-            // Access the data from the response
-            const data = response.data;
-            // console.log("Received data:", data);
-
-            // Set the state with the fetched data
-            setOrderData(data);
+            await SalesOrder("GetAllTypeCustomerWithSearch", sessionDetails.iCompanyID, "School", "", "", "", "", sessionDetails.ExecutiveID).then((response) => {
+                setOrderData(response);
+            }).catch((error) => {
+                console.error("Error fetching data:", error);
+            })
         } catch (error) {
             console.log('+++====+++====+++')
             console.error("Error fetching data:", error);
@@ -492,6 +455,7 @@ const SchoolVisitScreen = () => {
             setLoading(false);
         }
     };
+
     const [totalNetAmount, setTotalNetAmount] = useState(0);
 
     useEffect(() => {
@@ -509,93 +473,54 @@ const SchoolVisitScreen = () => {
         try {
             setLoading(true)
             // Construct the URL with query parameters
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_FindCommonDataForEdit";
-            const params = {
-                ActionType: "GetSchoolDetails",
-                iCompanyID: sessionDetails.iCompanyID,
-                LoadId: schoolId,
-                UserID: sessionDetails.UserID,
-            };
+            await FindCommonDataForEdit("GetSchoolDetails", sessionDetails.iCompanyID, schoolId, sessionDetails.UserID).then((response) => {
+                setSchoolData(response);
 
-            const url = `${baseUrl}`;
-
-            // Make the POST request using axios
-            const response = await axios.post(url, null, {
-                params: params, // Send the params as query parameters
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-            const data = response.data[0];
-            setSchoolData(data);
+            }).catch((error) => {
+                console.error("Error fetching data:", error);
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
     }
+
     const loadTable = async () => {
         try {
             // console.log(classValue, formData.selectedSeries);
-            const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_GetCommonDataFromDB";
-            const params = {
-                ActionType: "GetOppurtunitySchoolWise",
-                iCompanyID: sessionDetails.iCompanyID,
-                iBranchID: 1,
-                FinancialPeriod: '2024-2024',
-                Col1: schoolId,
-                Col2: "",
-                Col3: "",
-                Col4: "",
-                Col5: "",
-                Col6: "",
-                Col7: "",
-                Col8: "",
-                Col9: "",
-                Col10: "",
-                UserID: sessionDetails.UserID,
-            };
-
-            const url = `${baseUrl}`;
-            // console.log('Request URL:', url);
-
-            const response = await axios.post(url, null, {
-                params: params,
-                headers: {
-                    "Authorization": 'Basic LTExOkRDNkY3Q0NCMkRBRDQwQkI5QUYwOUJCRkYwN0MyNzNC', // Basic Auth
-                },
-            });
-
-            const data = response.data;
-            console.log(data)
-            const filteredTable = data?.filter(
-                (item) => item.TBLType === "olddata"
-            );
-            setRenewalOpportunitiesTable(filteredTable);
-            const filteredTableSP = data?.filter(
-                (item) => item.TBLType === "SalesPlan"
-            );
-            const mappedTableData = filteredTableSP?.map((book, index) => {
-                return {
-                    BookCode: book.BookCode,
-                    id: book.BookCode,
-                    title: book.BookName,
-                    classID: book.ClassID || null, // Assuming ClassID is part of the data
-                    netAmount: book.SingleTitleNetAmount * book.Qty,
-                    competitorPublisher: book.CompPublisher,
-                    Series: book.CompSerirs,
-                    Title: book.CompTitle,
-                    AdoptionChances: book.AdoptionChance || "",
-                    PlanYear: book.PlanYear,
-                    OppValue: 1000,
-                    Qty: book.Qty,
-                    pipelineValue: "",
-                    TitleRemark: book.TitleRemark || "",
-                    TrnsSamplePlanDetailID: 1,
-                };
-            });
-            setTableData(mappedTableData)
-            setShowTable(true)
+            await GetCommonDataFromDatabase("GetOppurtunitySchoolWise", sessionDetails.iCompanyID, schoolId,"","","","","","","","","","", sessionDetails.UserID).then((data) => {
+                const filteredTable = data?.filter(
+                    (item) => item.TBLType === "olddata"
+                );
+                setRenewalOpportunitiesTable(filteredTable);
+                const filteredTableSP = data?.filter(
+                    (item) => item.TBLType === "SalesPlan"
+                );
+                const mappedTableData = filteredTableSP?.map((book, index) => {
+                    return {
+                        BookCode: book.BookCode,
+                        id: book.BookCode,
+                        title: book.BookName,
+                        classID: book.ClassID || null, // Assuming ClassID is part of the data
+                        netAmount: book.SingleTitleNetAmount * book.Qty,
+                        competitorPublisher: book.CompPublisher,
+                        Series: book.CompSerirs,
+                        Title: book.CompTitle,
+                        AdoptionChances: book.AdoptionChance || "",
+                        PlanYear: book.PlanYear,
+                        OppValue: 1000,
+                        Qty: book.Qty,
+                        pipelineValue: "",
+                        TitleRemark: book.TitleRemark || "",
+                        TrnsSamplePlanDetailID: 1,
+                    };
+                });
+                setTableData(mappedTableData)
+                setShowTable(true)
+            }).catch((error) => {
+                console.error("Error fetching data:", error);
+            })
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -606,7 +531,7 @@ const SchoolVisitScreen = () => {
     // const fetchBusinessDetails = async () => {
     //     try {
     //         // Construct the URL with query parameters
-    //         const baseUrl = "https://visitmcm.cloudpub.in/api/CRM_FindCommonDataForEdit";
+    //         const baseUrl = "https://visit.cloudpub.in/api/CRM_FindCommonDataForEdit";
     //         const params = {
     //             ActionType: "GetSchoolDetails",
     //             iCompanyID: 1,
@@ -637,12 +562,14 @@ const SchoolVisitScreen = () => {
             fetchData();
         }
     }, [sessionDetails]);
+    
     useEffect(() => {
         if (schoolId) {
             fetchSchoolDetails();
             loadTable()
         }
     }, [schoolId])
+
     const handleCheckboxChange = (level) => {
         const currentArray = classType === 'Class Level' ? classLevels : classNum;
 
